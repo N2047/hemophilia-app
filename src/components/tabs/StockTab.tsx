@@ -103,12 +103,16 @@ export default function StockTab() {
       setDeleteLoading(true);
       setDeleteError(null);
       const url = isSuperAdmin
-        ? `/api/stock/central?id=${batchToDelete.id}`
-        : `/api/stock/office?id=${batchToDelete.id}`;
+        ? `/api/stock/central?id=${encodeURIComponent(batchToDelete.id || '')}&batchNumber=${encodeURIComponent(batchToDelete.batchNumber || '')}`
+        : `/api/stock/office?id=${encodeURIComponent(batchToDelete.id || '')}&batchNumber=${encodeURIComponent(batchToDelete.batchNumber || '')}`;
       const res = await fetch(url, { method: 'DELETE' });
       const json = await res.json();
       if (json.success) {
         setToastMessage(json.message || 'स्टक ब्याच सफलतापूर्वक हटाइयो।');
+        // Immediately remove from UI state
+        setStockBatches((prev) =>
+          prev.filter((b) => b.id !== batchToDelete.id && b.batchNumber !== batchToDelete.batchNumber)
+        );
         setBatchToDelete(null);
         fetchStock();
       } else {

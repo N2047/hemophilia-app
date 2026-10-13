@@ -76,22 +76,44 @@ export async function DELETE(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const batchId = searchParams.get('id');
-    if (!batchId) {
-      return NextResponse.json({ success: false, message: 'स्टक ब्याचको ID आवश्यक छ।' }, { status: 400 });
+    const batchNumberParam = searchParams.get('batchNumber');
+    if (!batchId && !batchNumberParam) {
+      return NextResponse.json({ success: false, message: 'स्टक ब्याचको ID वा ब्याच नम्बर आवश्यक छ।' }, { status: 400 });
     }
 
-    const batch = await prisma.officeStockBatch.findUnique({
-      where: { id: batchId },
-      include: {
-        office: true,
-        company: true,
-        product: true,
-        distributionItems: true,
-      },
-    });
+    let batch = null;
+    if (batchId) {
+      batch = await prisma.officeStockBatch.findUnique({
+        where: { id: batchId },
+        include: {
+          office: true,
+          company: true,
+          product: true,
+          distributionItems: true,
+        },
+      });
+    }
+
+    if (!batch && batchNumberParam) {
+      batch = await prisma.officeStockBatch.findFirst({
+        where: {
+          batchNumber: batchNumberParam,
+          officeId: user.role === 'OFFICE_USER' ? user.officeId! : undefined,
+        },
+        include: {
+          office: true,
+          company: true,
+          product: true,
+          distributionItems: true,
+        },
+      });
+    }
 
     if (!batch) {
-      return NextResponse.json({ success: false, message: 'स्याटेलाइट स्टक ब्याच फेला परेन।' }, { status: 404 });
+      return NextResponse.json({
+        success: true,
+        message: 'यो ब्याच डेटाबेसमा पहिल्यै हटिसकेको छ वा फेला परेन। सूचीबाट सफलतापूर्वक हटाइयो।',
+      });
     }
 
     // Role check
@@ -99,15 +121,17 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'अन्य कार्यालयको स्टक मेटाउने अधिकार छैन।' }, { status: 403 });
     }
 
+    const targetId = batch.id;
+
     await prisma.$transaction(async (tx) => {
       // 1. Delete associated distribution items
       await tx.patientDistributionItem.deleteMany({
-        where: { officeStockBatchId: batchId },
+        where: { officeStockBatchId: targetId },
       });
 
       // 2. Delete the office batch
       await tx.officeStockBatch.delete({
-        where: { id: batchId },
+        where: { id: targetId },
       });
     });
 
@@ -117,7 +141,7 @@ export async function DELETE(req: NextRequest) {
     });
   } catch (error: any) {
     console.error('Office stock batch delete error:', error);
-    return NextResponse.json({ success: false, message: 'स्टक ब्याच मेटाउँदा समस्या आयो।' }, { status: 500 });
+    return NextResponse.json({ success: false, message: `स्टक ब्याच मेटाउँदा समस्या आयो: ${error.message || error}` }, { status: 500 });
   }
 }
 

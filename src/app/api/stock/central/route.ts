@@ -70,27 +70,78 @@ export async function DELETE(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const batchId = searchParams.get('id');
-    if (!batchId) {
-      return NextResponse.json({ success: false, message: 'स्टक ब्याचको ID आवश्यक छ।' }, { status: 400 });
+    const batchNumberParam = searchParams.get('batchNumber');
+    if (!batchId && !batchNumberParam) {
+      return NextResponse.json({ success: false, message: 'स्टक ब्याचको ID वा ब्याच नम्बर आवश्यक छ।' }, { status: 400 });
     }
 
-    const batch = await prisma.centralStockBatch.findUnique({
-      where: { id: batchId },
-      include: {
-        company: true,
-        product: true,
-        transferItems: true,
-      },
-    });
+    let batch = null;
+    if (batchId) {
+      batch = await prisma.centralStockBatch.findUnique({
+        where: { id: batchId },
+        include: {
+          company: true,
+          product: true,
+          transferItems: true,
+        },
+      });
+    }
+
+    if (!batch && batchNumberParam) {
+      batch = await prisma.centralStockBatch.findFirst({
+        where: { batchNumber: batchNumberParam },
+        include: {
+          company: true,
+          product: true,
+          transferItems: true,
+        },
+      });
+    }
+
+    if (!batch && batchId) {
+      batch = await prisma.centralStockBatch.findFirst({
+        where: { batchNumber: batchId },
+        include: {
+          company: true,
+          product: true,
+          transferItems: true,
+        },
+      });
+    }
 
     if (!batch) {
-      return NextResponse.json({ success: false, message: 'स्टक ब्याच फेला परेन।' }, { status: 404 });
+      // Check if it exists in officeStockBatch
+      if (batchId) {
+        const officeBatch = await prisma.officeStockBatch.findUnique({
+          where: { id: batchId },
+        });
+        if (officeBatch) {
+          await prisma.patientDistributionItem.deleteMany({
+            where: { officeStockBatchId: batchId },
+          });
+          await prisma.officeStockBatch.delete({
+            where: { id: batchId },
+          });
+          return NextResponse.json({
+            success: true,
+            message: 'स्टक ब्याच सफलतापूर्वक हटाइयो।',
+          });
+        }
+      }
+
+      // If already deleted or not in database, return success so frontend removes it smoothly
+      return NextResponse.json({
+        success: true,
+        message: 'यो ब्याच डेटाबेसमा पहिल्यै हटिसकेको छ वा फेला परेन। सूचीबाट सफलतापूर्वक हटाइयो।',
+      });
     }
+
+    const targetId = batch.id;
 
     await prisma.$transaction(async (tx) => {
       // 1. Delete associated transfer items
       await tx.stockTransferItem.deleteMany({
-        where: { centralStockBatchId: batchId },
+        where: { centralStockBatchId: targetId },
       });
 
       // 2. Delete entry logs for this batch
@@ -103,15 +154,26 @@ export async function DELETE(req: NextRequest) {
 
       // 3. Delete the central stock batch
       await tx.centralStockBatch.delete({
-        where: { id: batchId },
+        where: { id: targetId },
       });
+
+      // 4. Clean up any transfers that now have 0 items
+      const emptyTransfers = await tx.stockTransfer.findMany({
+        where: { items: { none: {} } },
+        select: { id: true },
+      });
+      if (emptyTransfers.length > 0) {
+        await tx.stockTransfer.deleteMany({
+          where: { id: { in: emptyTransfers.map((t) => t.id) } },
+        });
+      }
     });
 
     await createAuditLog({
       user,
       action: 'STOCK_BATCH_DELETED',
       entityType: 'CentralStockBatch',
-      entityId: batchId,
+      entityId: targetId,
       details: {
         batchNumber: batch.batchNumber,
         productName: batch.product.name,
@@ -127,7 +189,7 @@ export async function DELETE(req: NextRequest) {
     });
   } catch (error: any) {
     console.error('Central stock batch delete error:', error);
-    return NextResponse.json({ success: false, message: 'स्टक ब्याच मेटाउँदा समस्या आयो।' }, { status: 500 });
+    return NextResponse.json({ success: false, message: `स्टक ब्याच मेटाउँदा समस्या आयो: ${error.message || error}` }, { status: 500 });
   }
 }
 
