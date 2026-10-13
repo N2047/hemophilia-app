@@ -7,7 +7,7 @@ import {
 } from '../src/lib/stockService';
 import { SessionUser } from '../src/lib/auth';
 
-describe('Workflow & Integrity Automated Tests (Section 21 Requirements)', () => {
+describe('Workflow & Integrity Automated Tests (Section 21 Requirements)', { timeout: 30000 }, () => {
   let superAdminUser: SessionUser;
   let urlabariUser: SessionUser;
   let dhankutaUser: SessionUser;

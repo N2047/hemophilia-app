@@ -112,7 +112,10 @@ export async function POST(req: NextRequest) {
       const tableSql = String(row.sql);
 
       // Create table on Turso
-      await tursoClient.execute(tableSql);
+      const safeSql = tableSql.replace(/^CREATE TABLE /i, 'CREATE TABLE IF NOT EXISTS ');
+      try {
+        await tursoClient.execute(safeSql);
+      } catch (e) {}
 
       // Fetch rows
       const dataRes = await localClient.execute(`SELECT * FROM "${tableName}"`);

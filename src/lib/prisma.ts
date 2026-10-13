@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { createClient } from '@libsql/client';
-import { PrismaLibSql } from '@prisma/adapter-libsql';
+import { PrismaLibSQL } from '@prisma/adapter-libsql';
 import fs from 'fs';
 import path from 'path';
 
@@ -11,10 +11,11 @@ function createPrismaInstance(): PrismaClient {
   // 1. If Turso credentials are provided, connect directly to Turso Cloud
   if (tursoUrl && tursoAuthToken) {
     try {
-      const adapter = new PrismaLibSql({
+      const libsql = createClient({
         url: tursoUrl,
         authToken: tursoAuthToken,
       });
+      const adapter = new PrismaLibSQL(libsql);
       return new PrismaClient({
         adapter: adapter as any,
         log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],

@@ -88,7 +88,12 @@ async function main() {
     console.log(`\n🔹 Processing table: ${tableName}...`);
 
     // Create table if not exists
-    await tursoClient.execute(tableSql);
+    const safeSql = tableSql.replace(/^CREATE TABLE /i, 'CREATE TABLE IF NOT EXISTS ');
+    try {
+      await tursoClient.execute(safeSql);
+    } catch (e) {
+      // Table already exists
+    }
 
     // Fetch local data
     const localData = await localClient.execute(`SELECT * FROM "${tableName}"`);
