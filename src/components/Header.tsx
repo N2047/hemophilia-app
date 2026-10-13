@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { HeartPulse, Moon, Sun, LogOut, ShieldCheck, Building2, UserCircle, Smartphone } from 'lucide-react';
 import InstallAppModal from './InstallAppModal';
