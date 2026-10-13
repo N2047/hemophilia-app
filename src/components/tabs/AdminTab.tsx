@@ -27,6 +27,8 @@ import {
   Package,
   Plus,
   RefreshCw,
+  Cloud,
+  Database,
 } from 'lucide-react';
 
 export default function AdminTab() {
@@ -96,6 +98,13 @@ export default function AdminTab() {
 
   // Audit Logs State
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+
+  // Turso Cloud Database State
+  const [tursoUrl, setTursoUrl] = useState('libsql://hemophilia-data-n2047.turso.io');
+  const [tursoToken, setTursoToken] = useState('');
+  const [tursoLoading, setTursoLoading] = useState(false);
+  const [tursoResult, setTursoResult] = useState<any | null>(null);
+  const [tursoError, setTursoError] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
@@ -456,6 +465,36 @@ export default function AdminTab() {
       </div>
     );
   }
+
+  // Turso Cloud Database Backup Handler
+  const handleTursoSync = async () => {
+    if (!tursoToken.trim()) {
+      setTursoError('कृपया Turso Auth Token प्रविष्ट गर्नुहोस्। (https://app.turso.tech/n2047/databases/hemophilia-data मा गएर टोकन लिनुहोस्)');
+      return;
+    }
+    setTursoLoading(true);
+    setTursoError(null);
+    setTursoResult(null);
+
+    try {
+      const res = await fetch('/api/admin/turso-backup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: tursoUrl.trim(), authToken: tursoToken.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setTursoError(json.message || 'Turso मा ब्याकअप असफल भयो।');
+      } else {
+        setTursoResult(json.data);
+        setActionSuccess(json.message);
+      }
+    } catch (e: any) {
+      setTursoError('सर्भरसँग सम्पर्क हुन सकेन।');
+    } finally {
+      setTursoLoading(false);
+    }
+  };
 
   const filteredPurposes = purposes.filter((p) => {
     if (purposeFilter === 'ALL') return true;
@@ -1164,6 +1203,105 @@ export default function AdminTab() {
                 <Save className="w-4 h-4" />
                 <span>ब्रान्डिङ सेटिङ सुरक्षित गर्नुहोस्</span>
               </button>
+            </div>
+          </div>
+
+          {/* Turso Cloud Database Backup */}
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-white to-sky-50/50 dark:from-slate-900 dark:to-sky-950/20 border border-sky-200 dark:border-sky-900/50 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-sky-100 dark:border-slate-800">
+              <div>
+                <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                  <Cloud className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                  <span>४. Turso Cloud Database ब्याकअप तथा सिङ्क (Cloud Storage)</span>
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  हेमोफिलिया डाटालाई Turso Cloud (libSQL) मा सुरक्षित राख्नुहोस्
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 self-start sm:self-auto">
+                <Database className="w-3.5 h-3.5" />
+                <span>libSQL Database</span>
+              </span>
+            </div>
+
+            {tursoError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{tursoError}</span>
+              </div>
+            )}
+
+            <div className="space-y-3 max-w-2xl text-xs">
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Turso Database URL:
+                </label>
+                <input
+                  type="text"
+                  value={tursoUrl}
+                  onChange={(e) => setTursoUrl(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-xs"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-bold text-slate-700 dark:text-slate-300">
+                    Turso Auth Token:
+                  </label>
+                  <a
+                    href="https://app.turso.tech/n2047/databases/hemophilia-data"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] font-bold text-sky-600 hover:text-sky-700 hover:underline flex items-center gap-1"
+                  >
+                    <span>👉 Turso Dashboard बाट टोकन लिनुहोस्</span>
+                  </a>
+                </div>
+                <input
+                  type="password"
+                  value={tursoToken}
+                  onChange={(e) => setTursoToken(e.target.value)}
+                  placeholder="ey... (Turso Dashboard मा Generate Token थिचेर टोकन यहाँ राख्नुहोस्)"
+                  className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-xs"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">
+                  टोकन राखेर तलको बटन थिच्दा तपाईंको सम्पूर्ण बिरामी, स्टक, कार्यालय र लग डेटा Turso Cloud मा सिङ्क हुनेछ।
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleTursoSync}
+                  disabled={tursoLoading}
+                  className="px-5 py-2.5 rounded-xl font-bold text-xs bg-sky-600 hover:bg-sky-700 text-white shadow-md shadow-sky-600/20 flex items-center gap-2 disabled:opacity-50"
+                >
+                  <Cloud className="w-4 h-4" />
+                  <span>
+                    {tursoLoading ? 'Turso Cloud मा ब्याकअप हुँदैछ...' : 'Turso मा अहिले नै डेटाबेस ब्याकअप गर्नुहोस्'}
+                  </span>
+                </button>
+              </div>
+
+              {tursoResult && (
+                <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs space-y-2 mt-3">
+                  <div className="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>सफलतापूर्वक Turso Cloud मा ब्याकअप सम्पन्न भयो!</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] pt-1">
+                    <div className="p-2 rounded-lg bg-white dark:bg-slate-900 border">
+                      <span className="text-slate-400 block">कुल तालिकाहरू</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{tursoResult.tableCount}</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-white dark:bg-slate-900 border">
+                      <span className="text-slate-400 block">सिङ्क भएका रेकर्डहरू</span>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{tursoResult.totalSyncedRows}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
