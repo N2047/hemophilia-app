@@ -31,6 +31,7 @@ import {
   Building2,
   ShieldAlert,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 
 interface PatientsTabProps {
@@ -89,6 +90,13 @@ export default function PatientsTab({ onDistributePatient }: PatientsTabProps) {
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
   const [duplicateWarning, setDuplicateWarning] = useState<any | null>(null);
+
+  // Deletion Confirmation States
+  const [patientToDelete, setPatientToDelete] = useState<any | null>(null);
+  const [distributionToDelete, setDistributionToDelete] = useState<{ id: string; voucherNumber: string } | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [actionToast, setActionToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // Fetch Patients
   const fetchPatients = async (query = '') => {
@@ -181,6 +189,67 @@ export default function PatientsTab({ onDistributePatient }: PatientsTabProps) {
   // Print Patient Dossier
   const handlePrintPatientDossier = () => {
     window.print();
+  };
+
+  // Delete Patient Record
+  const handleDeletePatient = async () => {
+    if (!patientToDelete) return;
+    try {
+      setDeleteLoading(true);
+      setDeleteError(null);
+      const res = await fetch(`/api/patients/${patientToDelete.id}`, {
+        method: 'DELETE',
+      });
+      const json = await res.json();
+      if (json.success) {
+        setActionToast({
+          type: 'success',
+          message: json.message || 'बिरामीको तथ्यांक सफलतापूर्वक हटाइयो।',
+        });
+        setPatientToDelete(null);
+        if (selectedPatient?.id === patientToDelete.id) {
+          setSelectedPatient(null);
+          setPatientDetails(null);
+        }
+        fetchPatients(searchQuery);
+      } else {
+        setDeleteError(json.message || 'तथ्यांक मेटाउन सकिएन।');
+      }
+    } catch (err: any) {
+      setDeleteError('नेटवर्क समस्याका कारण मेटाउन सकिएन।');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Delete Individual Distribution Record
+  const handleDeleteDistribution = async () => {
+    if (!distributionToDelete) return;
+    try {
+      setDeleteLoading(true);
+      setDeleteError(null);
+      const res = await fetch(`/api/stock/distributions/${distributionToDelete.id}`, {
+        method: 'DELETE',
+      });
+      const json = await res.json();
+      if (json.success) {
+        setActionToast({
+          type: 'success',
+          message: json.message || 'वितरण भौचर सफलतापूर्वक हटाइयो।',
+        });
+        setDistributionToDelete(null);
+        if (selectedPatient) {
+          openPatientProfile(selectedPatient);
+        }
+        fetchPatients(searchQuery);
+      } else {
+        setDeleteError(json.message || 'भौचर मेटाउन सकिएन।');
+      }
+    } catch (err: any) {
+      setDeleteError('नेटवर्क समस्याका कारण मेटाउन सकिएन।');
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   // Calculate live severity whenever factorType or factorLevelPercent changes
@@ -502,15 +571,30 @@ export default function PatientsTab({ onDistributePatient }: PatientsTabProps) {
                       </div>
                     </td>
 
-                    {/* विस्तृत विवरण हेर्नुहोस् (Action Button) */}
+                    {/* विस्तृत विवरण हेर्नुहोस् र डिलिट (Action Buttons) */}
                     <td className="p-3.5 text-right">
-                      <button
-                        onClick={() => openPatientProfile(p)}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs bg-slate-100 hover:bg-brand-600 text-slate-700 hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-brand-600 transition-all shadow-sm active:scale-95 group/btn"
-                      >
-                        <Eye className="w-3.5 h-3.5 text-slate-500 group-hover/btn:text-white transition-colors" />
-                        <span>विस्तृत विवरण हेर्नुहोस्</span>
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => openPatientProfile(p)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs bg-slate-100 hover:bg-brand-600 text-slate-700 hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-brand-600 transition-all shadow-sm active:scale-95 group/btn"
+                          title="बिरामीको विस्तृत प्रोफाइल तथा औषधि खपत इतिहास हेर्नुहोस्"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-slate-500 group-hover/btn:text-white transition-colors" />
+                          <span>विस्तृत विवरण</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setDeleteError(null);
+                            setPatientToDelete(p);
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl font-semibold text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 dark:text-rose-400 dark:hover:bg-rose-950/60 border border-rose-200/60 dark:border-rose-900/40 transition-all shadow-sm active:scale-95"
+                          title="अनावश्यक बिरामीको तथ्यांक मेटाउनुहोस् (Delete Patient)"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">डिलिट</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -570,6 +654,18 @@ export default function PatientsTab({ onDistributePatient }: PatientsTabProps) {
                 >
                   <Download className="w-4 h-4" />
                   <span>{downloadingExcel ? 'तयार हुँदैछ...' : 'Excel डाउनलोड'}</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setDeleteError(null);
+                    setPatientToDelete(selectedPatient);
+                  }}
+                  className="px-3.5 py-2 rounded-xl font-bold text-xs bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white dark:bg-rose-950/60 dark:text-rose-300 dark:hover:bg-rose-600 border border-rose-200/60 dark:border-rose-900/40 transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+                  title="यो बिरामीको सम्पूर्ण व्यक्तिगत तथ्यांक मेटाउनुहोस्"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span className="hidden sm:inline">अभिलेख मेटाउनुहोस्</span>
                 </button>
 
                 <button
@@ -748,6 +844,7 @@ export default function PatientsTab({ onDistributePatient }: PatientsTabProps) {
                         <th className="p-2.5 min-w-[160px]">प्रयोगको प्रयोजन</th>
                         <th className="p-2.5 min-w-[120px]">चिकित्सक</th>
                         <th className="p-2.5 min-w-[120px]">कर्मचारी</th>
+                        <th className="p-2.5 text-center w-14 print:hidden">कार्य</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -800,6 +897,18 @@ export default function PatientsTab({ onDistributePatient }: PatientsTabProps) {
                               {d.prescribingClinician || '-'}
                             </td>
                             <td className="p-2.5 text-slate-500">{d.dispensedByName}</td>
+                            <td className="p-2.5 text-center print:hidden">
+                              <button
+                                onClick={() => {
+                                  setDeleteError(null);
+                                  setDistributionToDelete({ id: d.id, voucherNumber: d.voucherNumber });
+                                }}
+                                title="यो औषधि वितरण अभिलेख मेटाउनुहोस् (Delete Distribution)"
+                                className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950 transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </td>
                           </tr>
                         );
                       })}
@@ -1256,6 +1365,155 @@ export default function PatientsTab({ onDistributePatient }: PatientsTabProps) {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* CONFIRM DELETE PATIENT MODAL */}
+      {patientToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div 
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-rose-200 dark:border-rose-900 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/80 flex items-center justify-center shrink-0">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  अनावश्यक बिरामी तथ्यांक मेटाउनुहोस्
+                </h3>
+                <p className="text-xs text-rose-600 dark:text-rose-400 font-semibold">
+                  स्थायी रूपमा तथ्यांक हटाउने कार्य
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 text-xs space-y-1.5">
+              <div className="flex justify-between">
+                <span className="text-slate-500">बिरामीको नाम:</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">
+                  {patientToDelete.fullName}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Patient ID:</span>
+                <span className="font-mono font-bold text-brand-600">
+                  {patientToDelete.patientCode}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">ठेगाना:</span>
+                <span className="text-slate-700 dark:text-slate-300">
+                  {patientToDelete.localLevel}, {patientToDelete.district}
+                </span>
+              </div>
+            </div>
+
+            {deleteError && (
+              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 font-medium">
+                {deleteError}
+              </div>
+            )}
+
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              ⚠️ <strong>चेतावनी:</strong> के तपाईं निश्चित हुनुहुन्छ? यो कार्य गरेपछि यस बिरामीको दर्ता विवरण तथा औषधि खपत तथ्यांक स्थायी रूपमा मेटिनेछ र यो कार्य उल्टाउन सकिने छैन।
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setPatientToDelete(null);
+                  setDeleteError(null);
+                }}
+                disabled={deleteLoading}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                रद्द गर्नुहोस्
+              </button>
+              <button
+                type="button"
+                onClick={handleDeletePatient}
+                disabled={deleteLoading}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-500/20 active:scale-95 disabled:opacity-50 transition-all"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{deleteLoading ? 'मेटाउँदैछ...' : 'हो, डिलिट गर्नुहोस्'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRM DELETE DISTRIBUTION MODAL */}
+      {distributionToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div 
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-rose-200 dark:border-rose-900 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/80 flex items-center justify-center shrink-0">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  अनावश्यक औषधि वितरण रेकर्ड मेटाउनुहोस्
+                </h3>
+                <p className="text-xs text-rose-600 dark:text-rose-400 font-semibold font-mono">
+                  भौचर नं: {distributionToDelete.voucherNumber}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              के तपाईं निश्चित हुनुहुन्छ? यो वितरण भौचर मेटाउँदा वितरण गरिएका फ्याक्टर भाइलहरू सम्बन्धित स्याटेलाइट स्टकमा स्वतः फिर्ता जोडिनेछन्।
+            </p>
+
+            {deleteError && (
+              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 font-medium">
+                {deleteError}
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setDistributionToDelete(null);
+                  setDeleteError(null);
+                }}
+                disabled={deleteLoading}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                रद्द गर्नुहोस्
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteDistribution}
+                disabled={deleteLoading}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-500/20 active:scale-95 disabled:opacity-50 transition-all"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{deleteLoading ? 'मेटाउँदैछ...' : 'हो, भौचर डिलिट गर्नुहोस्'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ACTION SUCCESS TOAST */}
+      {actionToast && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl shadow-xl border bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200 flex items-center gap-3 animate-in fade-in slide-in-from-bottom duration-200">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span className="text-xs font-bold">{actionToast.message}</span>
+          <button
+            onClick={() => setActionToast(null)}
+            className="ml-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>

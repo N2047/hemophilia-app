@@ -195,3 +195,88 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ success: false, message: 'अद्यावधिक गर्दा समस्या आयो।' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const user = await getUserFromRequest(req);
+    if (!user) {
+      return NextResponse.json({ success: false, message: 'अनधिकृत पहुँच' }, { status: 401 });
+    }
+
+    const { id } = params;
+
+    const patient = await prisma.patient.findFirst({
+      where: {
+        OR: [{ id }, { patientCode: id }],
+      },
+      include: {
+        distributions: {
+          include: {
+            items: true,
+          },
+        },
+      },
+    });
+
+    if (!patient) {
+      return NextResponse.json({ success: false, message: 'बिरामी फेला परेन।' }, { status: 404 });
+    }
+
+    // Delete associated distribution records and patient in transaction
+    await prisma.$transaction(async (tx) => {
+      for (const dist of patient.distributions) {
+        // Restore stock batches if requested or cleanup
+        for (const item of dist.items) {
+          try {
+            await tx.officeStockBatch.update({
+              where: { id: item.officeStockBatchId },
+              data: {
+                distributedVials: { decrement: item.vialCount },
+                currentVials: { increment: item.vialCount },
+              },
+            });
+          } catch (e) {
+            // Batch might not exist anymore, continue
+          }
+        }
+
+        await tx.patientDistributionItem.deleteMany({
+          where: { patientDistributionId: dist.id },
+        });
+      }
+
+      await tx.patientDistribution.deleteMany({
+        where: { patientId: patient.id },
+      });
+
+      await tx.patient.delete({
+        where: { id: patient.id },
+      });
+    });
+
+    await createAuditLog({
+      user,
+      action: 'PATIENT_DELETED',
+      entityType: 'Patient',
+      entityId: patient.id,
+      details: {
+        patientCode: patient.patientCode,
+        fullName: patient.fullName,
+        deletedDistributionsCount: patient.distributions.length,
+      },
+      reason: 'प्रयोगकर्ताद्वारा अनावश्यक बिरामी तथ्यांक हटाइयो',
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `${patient.fullName} (${patient.patientCode}) को अभिलेख सफलतापूर्वक हटाइयो।`,
+    });
+  } catch (error: any) {
+    console.error('Patient delete error:', error);
+    return NextResponse.json(
+      { success: false, message: 'बिरामीको तथ्यांक मेटाउँदा समस्या आयो।' },
+      { status: 500 }
+    );
+  }
+}
+
