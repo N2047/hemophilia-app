@@ -85,3 +85,36 @@
   }
 }
 
+/* Emergency Low Stock Blinking & Pulse Animation (पिलिक पिलिक एनिमेसन) */
+@keyframes pilikPilikText {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.95));
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(0.96);
+    filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.2));
+  }
+}
+
+.animate-pilik-pilik {
+  animation: pilikPilikText 0.9s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes emergencyBorderGlow {
+  0%, 100% {
+    border-color: rgba(239, 68, 68, 1);
+    box-shadow: 0 0 25px -3px rgba(239, 68, 68, 0.45);
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 0.35);
+    box-shadow: 0 0 8px 0px rgba(239, 68, 68, 0.15);
+  }
+}
+
+.animate-emergency-glow {
+  animation: emergencyBorderGlow 1.2s ease-in-out infinite;
+}
+

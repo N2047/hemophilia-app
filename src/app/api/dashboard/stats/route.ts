@@ -79,6 +79,81 @@ export async function GET(req: NextRequest) {
         officeWiseStock[ob.officeId].iu += ob.currentVials * ob.capacityIu;
       }
 
+      // Emergency Stock Alerts Calculation (Section Thresholds: Central F8 < 30000, Central F9 < 5000, Satellite F8 < 3000)
+      const CENTRAL_F8_THRESHOLD = 30000;
+      const CENTRAL_F9_THRESHOLD = 5000;
+      const SATELLITE_F8_THRESHOLD = 3000;
+
+      const centralF8Iu = factorWiseCentral['Factor VIII']?.iu || 0;
+      const centralF8Vials = factorWiseCentral['Factor VIII']?.vials || 0;
+      const isCentralF8Low = centralF8Iu < CENTRAL_F8_THRESHOLD;
+
+      const centralF9Iu = factorWiseCentral['Factor IX']?.iu || 0;
+      const centralF9Vials = factorWiseCentral['Factor IX']?.vials || 0;
+      const isCentralF9Low = centralF9Iu < CENTRAL_F9_THRESHOLD;
+
+      const allSatelliteOffices = await prisma.office.findMany({
+        where: { isActive: true, isCentral: false },
+        orderBy: { nameNepali: 'asc' },
+      });
+
+      const satelliteF8Stock: Record<
+        string,
+        { officeId: string; officeName: string; factor8Iu: number; factor8Vials: number }
+      > = {};
+      for (const off of allSatelliteOffices) {
+        satelliteF8Stock[off.id] = {
+          officeId: off.id,
+          officeName: off.nameNepali,
+          factor8Iu: 0,
+          factor8Vials: 0,
+        };
+      }
+
+      for (const ob of officeBatches) {
+        const isF8 =
+          (ob.product.factorType || '').toLowerCase().includes('viii') ||
+          ob.product.factorType === 'Factor VIII';
+        if (isF8 && satelliteF8Stock[ob.officeId]) {
+          satelliteF8Stock[ob.officeId].factor8Iu += ob.currentVials * ob.capacityIu;
+          satelliteF8Stock[ob.officeId].factor8Vials += ob.currentVials;
+        }
+      }
+
+      const lowStockSatellites = Object.values(satelliteF8Stock).filter(
+        (s) => s.factor8Iu < SATELLITE_F8_THRESHOLD
+      );
+
+      const emergencyAlerts = {
+        hasEmergency: isCentralF8Low || isCentralF9Low || lowStockSatellites.length > 0,
+        centralF8: {
+          isLow: isCentralF8Low,
+          currentIu: centralF8Iu,
+          currentVials: centralF8Vials,
+          thresholdIu: CENTRAL_F8_THRESHOLD,
+          factorName: 'Factor VIII',
+          deficitIu: Math.max(0, CENTRAL_F8_THRESHOLD - centralF8Iu),
+        },
+        centralF9: {
+          isLow: isCentralF9Low,
+          currentIu: centralF9Iu,
+          currentVials: centralF9Vials,
+          thresholdIu: CENTRAL_F9_THRESHOLD,
+          factorName: 'Factor IX',
+          deficitIu: Math.max(0, CENTRAL_F9_THRESHOLD - centralF9Iu),
+        },
+        satelliteF8List: lowStockSatellites.map((s) => ({
+          officeId: s.officeId,
+          officeName: s.officeName,
+          factorName: 'Factor VIII',
+          currentIu: s.factor8Iu,
+          currentVials: s.factor8Vials,
+          thresholdIu: SATELLITE_F8_THRESHOLD,
+          deficitIu: Math.max(0, SATELLITE_F8_THRESHOLD - s.factor8Iu),
+        })),
+        allSatellitesF8: Object.values(satelliteF8Stock),
+      };
+
       // 3. Counts & Totals
       const totalPatients = await prisma.patient.count({ where: { isActive: true } });
       const totalDistributions = await prisma.patientDistribution.count();
@@ -126,6 +201,7 @@ export async function GET(req: NextRequest) {
           expiringSoonBatches,
           expiredBatches,
         },
+        emergencyAlerts,
         recentActivities: {
           recentEntries,
           recentTransfers,
@@ -196,6 +272,31 @@ export async function GET(req: NextRequest) {
         _count: { id: true },
       });
 
+      // Emergency Stock Alert for Satellite (Threshold: Factor VIII < 3000 IU; Factor IX is exempted per user spec)
+      const SATELLITE_F8_THRESHOLD = 3000;
+      const officeF8Iu = factorWiseOffice['Factor VIII']?.iu || 0;
+      const officeF8Vials = factorWiseOffice['Factor VIII']?.vials || 0;
+      const isOfficeF8Low = officeF8Iu < SATELLITE_F8_THRESHOLD;
+
+      const currentOffice = await prisma.office.findUnique({
+        where: { id: officeId },
+        select: { nameNepali: true },
+      });
+
+      const emergencyAlerts = {
+        hasEmergency: isOfficeF8Low,
+        satelliteF8: {
+          isLow: isOfficeF8Low,
+          officeId,
+          officeName: currentOffice?.nameNepali || user.officeName || 'स्याटेलाइट कार्यालय',
+          factorName: 'Factor VIII',
+          currentIu: officeF8Iu,
+          currentVials: officeF8Vials,
+          thresholdIu: SATELLITE_F8_THRESHOLD,
+          deficitIu: Math.max(0, SATELLITE_F8_THRESHOLD - officeF8Iu),
+        },
+      };
+
       return NextResponse.json({
         success: true,
         role: 'OFFICE_USER',
@@ -216,6 +317,7 @@ export async function GET(req: NextRequest) {
           expiringSoonBatches,
           expiredBatches,
         },
+        emergencyAlerts,
         recentActivities: {
           recentTransfers: recentReceivedTransfers,
           recentDistributions: recentOfficeDistributions,

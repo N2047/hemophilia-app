@@ -15,6 +15,7 @@ import {
   ArrowRight,
   ShieldAlert,
   Calendar,
+  AlertOctagon,
 } from 'lucide-react';
 
 interface DashboardTabProps {
@@ -56,6 +57,7 @@ export default function DashboardTab({ onNavigate }: DashboardTabProps) {
 
   const summary = data?.summary || {};
   const alerts = data?.alerts || {};
+  const emergencyAlerts = data?.emergencyAlerts;
 
   return (
     <div className="space-y-6 pb-20 lg:pb-10">
@@ -105,6 +107,192 @@ export default function DashboardTab({ onNavigate }: DashboardTabProps) {
           </div>
         </div>
       </div>
+
+      {/* 🚨 Emergency Low Stock Blinking Alert Banner (पिलिक पिलिक एनिमेसन सहित) */}
+      {emergencyAlerts?.hasEmergency && (
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-50 via-rose-50 to-red-100 dark:from-red-950/70 dark:via-rose-950/50 dark:to-slate-900 border-2 border-red-500 shadow-xl shadow-red-500/15 animate-emergency-glow p-5 sm:p-6 transition-all">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-red-200 dark:border-red-800/60">
+            <div className="flex items-start sm:items-center gap-3">
+              <div className="relative p-3 rounded-2xl bg-red-600 text-white shadow-lg shadow-red-600/40 shrink-0">
+                <AlertOctagon className="w-6 h-6 animate-bounce" />
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <h2 className="text-lg sm:text-xl font-black text-red-950 dark:text-red-100 tracking-tight">
+                    आपतकालीन मौज्दात चेतावनी (Emergency Stock Alert)
+                  </h2>
+                  {/* पिलिक पिलिक अक्षर एनिमेसन */}
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white font-black text-xs uppercase tracking-widest shadow-md shadow-red-600/30">
+                    <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                    <span className="animate-pilik-pilik font-black text-sm tracking-widest">
+                      🚨 स्टक LOW
+                    </span>
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm text-red-800 dark:text-red-300 mt-1 font-medium">
+                  {isSuperAdmin
+                    ? 'केन्द्रीय वा स्याटलाइट स्टकमा तोकिएको न्यूनतम सीमाभन्दा कम औषधि भएकोले तत्काल आपूर्ति आवश्यक छ।'
+                    : `${emergencyAlerts.satelliteF8?.officeName || user?.officeName || 'कार्यालय'}मा Factor VIII मौज्दात ३,००० IU भन्दा न्यून भएकोले तत्काल आपतकालीन माग पठाउनुहोस्।`}
+                </p>
+              </div>
+            </div>
+
+            <div className="shrink-0 flex items-center gap-2">
+              <button
+                onClick={() => onNavigate('stock')}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/30 transition-all active:scale-95"
+              >
+                <Boxes className="w-4 h-4" />
+                <span>{isSuperAdmin ? 'स्टक व्यवस्थापन (इन्ट्री/ट्रान्सफर)' : 'स्टक मौज्दात हेर्नुहोस्'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Alert Cards Breakdown */}
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {/* 1. Super Admin: Central Factor VIII Alert (< 30,000 IU) */}
+            {isSuperAdmin && emergencyAlerts.centralF8?.isLow && (
+              <div className="p-4 rounded-xl bg-white/95 dark:bg-slate-900/95 border-2 border-red-500 shadow-sm relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                    केन्द्रीय स्टक (Central Stock)
+                  </span>
+                  <span className="animate-pilik-pilik text-xs font-black text-red-600 bg-red-50 dark:bg-red-950/60 px-2 py-0.5 rounded-md border border-red-200 dark:border-red-800">
+                    🚨 स्टक LOW
+                  </span>
+                </div>
+                <div className="text-base font-black text-slate-900 dark:text-white">
+                  Factor VIII (८)
+                </div>
+                <div className="mt-2 flex items-baseline justify-between text-sm">
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">हालको मौज्दात:</span>
+                  <span className="font-black text-red-600 dark:text-red-400 text-lg">
+                    {emergencyAlerts.centralF8.currentIu.toLocaleString()} IU ({emergencyAlerts.centralF8.currentVials} भाइल)
+                  </span>
+                </div>
+                <div className="text-xs text-slate-600 dark:text-slate-400 flex justify-between mt-1 pt-1 border-t border-slate-100 dark:border-slate-800">
+                  <span>न्यूनतम सीमा: <b>३०,००० IU</b></span>
+                  <span className="text-red-600 font-bold">
+                    कम: {emergencyAlerts.centralF8.deficitIu.toLocaleString()} IU
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* 2. Super Admin: Central Factor IX Alert (< 5,000 IU) */}
+            {isSuperAdmin && emergencyAlerts.centralF9?.isLow && (
+              <div className="p-4 rounded-xl bg-white/95 dark:bg-slate-900/95 border-2 border-red-500 shadow-sm relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                    केन्द्रीय स्टक (Central Stock)
+                  </span>
+                  <span className="animate-pilik-pilik text-xs font-black text-red-600 bg-red-50 dark:bg-red-950/60 px-2 py-0.5 rounded-md border border-red-200 dark:border-red-800">
+                    🚨 स्टक LOW
+                  </span>
+                </div>
+                <div className="text-base font-black text-slate-900 dark:text-white">
+                  Factor IX (९)
+                </div>
+                <div className="mt-2 flex items-baseline justify-between text-sm">
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">हालको मौज्दात:</span>
+                  <span className="font-black text-red-600 dark:text-red-400 text-lg">
+                    {emergencyAlerts.centralF9.currentIu.toLocaleString()} IU ({emergencyAlerts.centralF9.currentVials} भाइल)
+                  </span>
+                </div>
+                <div className="text-xs text-slate-600 dark:text-slate-400 flex justify-between mt-1 pt-1 border-t border-slate-100 dark:border-slate-800">
+                  <span>न्यूनतम सीमा: <b>५,००० IU</b></span>
+                  <span className="text-red-600 font-bold">
+                    कम: {emergencyAlerts.centralF9.deficitIu.toLocaleString()} IU
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* 3. Office User: Own Satellite Factor VIII Alert (< 3,000 IU) */}
+            {!isSuperAdmin && emergencyAlerts.satelliteF8?.isLow && (
+              <div className="p-4 rounded-xl bg-white/95 dark:bg-slate-900/95 border-2 border-red-500 shadow-sm relative overflow-hidden col-span-full">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                    {emergencyAlerts.satelliteF8.officeName}
+                  </span>
+                  <span className="animate-pilik-pilik text-xs font-black text-red-600 bg-red-50 dark:bg-red-950/60 px-2 py-0.5 rounded-md border border-red-200 dark:border-red-800">
+                    🚨 स्टक LOW
+                  </span>
+                </div>
+                <div className="text-base font-black text-slate-900 dark:text-white">
+                  Factor VIII (८) मौज्दात ३,००० IU भन्दा न्यून!
+                </div>
+                <div className="mt-2 flex items-baseline justify-between text-sm">
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">हाल बाँकी:</span>
+                  <span className="font-black text-red-600 dark:text-red-400 text-xl">
+                    {emergencyAlerts.satelliteF8.currentIu.toLocaleString()} IU ({emergencyAlerts.satelliteF8.currentVials} भाइल)
+                  </span>
+                </div>
+                <div className="text-xs text-slate-600 dark:text-slate-400 flex justify-between mt-1 pt-1 border-t border-slate-100 dark:border-slate-800">
+                  <span>न्यूनतम सुरक्षित मौज्दात: <b>३,००० IU</b></span>
+                  <span className="text-red-600 font-bold">
+                    अपुग: {emergencyAlerts.satelliteF8.deficitIu.toLocaleString()} IU
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 4. Super Admin: List of Satellite Offices with Factor VIII < 3,000 IU */}
+          {isSuperAdmin && emergencyAlerts.satelliteF8List?.length > 0 && (
+            <div className="mt-4 pt-3.5 border-t border-red-200 dark:border-red-800/60">
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="text-xs font-black uppercase tracking-wider text-red-900 dark:text-red-200 flex items-center gap-1.5">
+                  <Building2 className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>
+                    Factor VIII न्यून (कम) भएका स्याटलाइट कार्यालयहरू (३,००० IU भन्दा कम):
+                  </span>
+                </div>
+                <span className="text-xs font-bold text-red-700 dark:text-red-300">
+                  {emergencyAlerts.satelliteF8List.length} वटा स्याटलाइटमा कम
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                {emergencyAlerts.satelliteF8List.map((sat: any) => (
+                  <div
+                    key={sat.officeId}
+                    className="p-2.5 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-red-300 dark:border-red-800 flex items-center justify-between gap-2 shadow-sm hover:border-red-500 transition-colors"
+                  >
+                    <div className="min-w-0">
+                      <div className="font-bold text-xs text-slate-900 dark:text-white truncate">
+                        {sat.officeName}
+                      </div>
+                      <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                        <span>F-VIII:</span>
+                        <span className="font-black text-red-600 dark:text-red-400">
+                          {sat.currentIu.toLocaleString()} IU
+                        </span>
+                      </div>
+                    </div>
+                    <div className="shrink-0 flex flex-col items-end gap-1">
+                      <span className="animate-pilik-pilik text-[10px] font-black text-red-600 bg-red-100 dark:bg-red-950/80 px-1.5 py-0.5 rounded border border-red-300 dark:border-red-800">
+                        स्टक LOW
+                      </span>
+                      <button
+                        onClick={() => onNavigate('stock')}
+                        className="text-[10px] text-brand-600 hover:text-brand-700 font-bold underline inline-flex items-center gap-0.5"
+                      >
+                        पठाउनुहोस् <ArrowRight className="w-2.5 h-2.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Critical Inventory Alerts if any */}
       {(summary.lowStockCount > 0 || summary.expiringSoonCount > 0 || summary.expiredCount > 0) && (
@@ -249,11 +437,38 @@ export default function DashboardTab({ onNavigate }: DashboardTabProps) {
                   key={factor}
                   className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between"
                 >
-                  <div className="font-bold text-sm text-slate-800 dark:text-slate-200">
-                    {factor}
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm text-slate-800 dark:text-slate-200">
+                      {factor}
+                    </span>
+                    {/* Blinking indicator for low stock */}
+                    {isSuperAdmin && factor === 'Factor VIII' && val.iu < 30000 && (
+                      <span className="animate-pilik-pilik text-[10px] font-black text-red-600 bg-red-100 dark:bg-red-950 px-1.5 py-0.5 rounded border border-red-300 dark:border-red-800">
+                        🚨 स्टक LOW (&lt;३०,००० IU)
+                      </span>
+                    )}
+                    {isSuperAdmin && factor === 'Factor IX' && val.iu < 5000 && (
+                      <span className="animate-pilik-pilik text-[10px] font-black text-red-600 bg-red-100 dark:bg-red-950 px-1.5 py-0.5 rounded border border-red-300 dark:border-red-800">
+                        🚨 स्टक LOW (&lt;५,००० IU)
+                      </span>
+                    )}
+                    {!isSuperAdmin && factor === 'Factor VIII' && val.iu < 3000 && (
+                      <span className="animate-pilik-pilik text-[10px] font-black text-red-600 bg-red-100 dark:bg-red-950 px-1.5 py-0.5 rounded border border-red-300 dark:border-red-800">
+                        🚨 स्टक LOW (&lt;३,००० IU)
+                      </span>
+                    )}
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-black text-brand-600 dark:text-brand-400">
+                    <span
+                      className={`text-sm font-black ${
+                        (isSuperAdmin &&
+                          ((factor === 'Factor VIII' && val.iu < 30000) ||
+                            (factor === 'Factor IX' && val.iu < 5000))) ||
+                        (!isSuperAdmin && factor === 'Factor VIII' && val.iu < 3000)
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-brand-600 dark:text-brand-400'
+                      }`}
+                    >
                       {val.vials} भाइल
                     </span>
                     <span className="text-xs text-slate-500 block">
@@ -293,6 +508,11 @@ export default function DashboardTab({ onNavigate }: DashboardTabProps) {
                       <span className="font-bold text-sm text-slate-800 dark:text-slate-200">
                         {o.officeName}
                       </span>
+                      {emergencyAlerts?.satelliteF8List?.some((s: any) => s.officeName === o.officeName) && (
+                        <span className="animate-pilik-pilik text-[10px] font-black text-red-600 bg-red-100 dark:bg-red-950 px-1.5 py-0.5 rounded border border-red-300 dark:border-red-800">
+                          🚨 F-VIII LOW
+                        </span>
+                      )}
                     </div>
                     <div className="text-right">
                       <span className="text-sm font-black text-slate-900 dark:text-white">
