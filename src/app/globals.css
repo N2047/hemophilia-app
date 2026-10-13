@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --primary: 346 77% 49%;
+    --primary-foreground: 355 100% 97%;
+    --secondary: 174 77% 26%;
+    --secondary-foreground: 166 100% 97%;
+    --border: 214 32% 91%;
+  }
+
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    --card: 224 71% 7%;
+    --card-foreground: 213 31% 91%;
+    --primary: 346 77% 55%;
+    --primary-foreground: 355 100% 97%;
+    --secondary: 174 77% 35%;
+    --secondary-foreground: 166 100% 97%;
+    --border: 216 34% 17%;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Custom scrollbars for high data density */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+/* Print styles for vouchers and medical reports */
+@media print {
+  nav, footer, .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
+
+/* iOS & Android Safe Area Insets and Mobile UX Utilities */
+.safe-area-pt {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-area-pl {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.safe-area-pr {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific fixes */
+  .ios-no-callout {
+    -webkit-touch-callout: none;
+  }
+}
+

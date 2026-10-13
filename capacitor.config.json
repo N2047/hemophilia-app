@@ -1,0 +1,10 @@
+{
+  "appId": "org.hemophilia.nepal.app",
+  "appName": "हेमोफिलिया फ्याक्टर व्यवस्थापन",
+  "webDir": "public",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  }
+}

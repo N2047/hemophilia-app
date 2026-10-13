@@ -1,0 +1,1159 @@
+{
+  "metadata": {
+    "timestamp": "2026-10-13T03:14:07.484Z",
+    "appName": "Hemophilia Factor Management System",
+    "version": "1.0.0"
+  },
+  "tables": {
+    "offices": [
+      {
+        "id": "OFFICE_DHANKUTA",
+        "nameNepali": "धनकुटा स्याटेलाइट",
+        "nameEnglish": "Dhankuta Satellite",
+        "district": "धनकुटा",
+        "isCentral": false,
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:52.651Z",
+        "updatedAt": "2026-10-13T02:51:52.651Z"
+      },
+      {
+        "id": "OFFICE_UDAYAPUR",
+        "nameNepali": "उदयपुर स्याटेलाइट",
+        "nameEnglish": "Udayapur Satellite",
+        "district": "उदयपुर",
+        "isCentral": false,
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:52.659Z",
+        "updatedAt": "2026-10-13T02:51:52.659Z"
+      },
+      {
+        "id": "OFFICE_URLABARI",
+        "nameNepali": "उर्लाबारी स्याटेलाइट",
+        "nameEnglish": "Urlabari Satellite",
+        "district": "मोरङ",
+        "isCentral": false,
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:52.664Z",
+        "updatedAt": "2026-10-13T02:51:52.664Z"
+      },
+      {
+        "id": "OFFICE_JHAPA",
+        "nameNepali": "झापा स्याटेलाइट",
+        "nameEnglish": "Jhapa Satellite",
+        "district": "झापा",
+        "isCentral": false,
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:52.668Z",
+        "updatedAt": "2026-10-13T02:51:52.668Z"
+      },
+      {
+        "id": "OFFICE_DHARAN",
+        "nameNepali": "धरान स्याटेलाइट",
+        "nameEnglish": "Dharan Satellite",
+        "district": "सुनसरी",
+        "isCentral": false,
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:52.673Z",
+        "updatedAt": "2026-10-13T02:51:52.673Z"
+      },
+      {
+        "id": "OFFICE_ITAHARI",
+        "nameNepali": "इटहरी स्याटेलाइट",
+        "nameEnglish": "Itahari Satellite",
+        "district": "सुनसरी",
+        "isCentral": false,
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:52.677Z",
+        "updatedAt": "2026-10-13T02:51:52.677Z"
+      },
+      {
+        "id": "OFFICE_OKHALDHUNGA",
+        "nameNepali": "ओखलढुङ्गा स्याटेलाइट",
+        "nameEnglish": "Okhaldhunga Satellite",
+        "district": "ओखलढुङ्गा",
+        "isCentral": false,
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:52.682Z",
+        "updatedAt": "2026-10-13T02:51:52.682Z"
+      },
+      {
+        "id": "OFFICE_BIRATNAGAR",
+        "nameNepali": "विराटनगर अफिस",
+        "nameEnglish": "Biratnagar Office",
+        "district": "मोरङ",
+        "isCentral": false,
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:52.686Z",
+        "updatedAt": "2026-10-13T02:51:52.686Z"
+      }
+    ],
+    "users": [
+      {
+        "id": "cmv634lfu0000h6is7j8ia5nk",
+        "username": "admin",
+        "name": "केन्द्रीय प्रशासक (Super Admin)",
+        "passwordHash": "$2b$10$Qv5xa3SxGMiXurKx7ibj2OgQ9Kfkr4jfsu8RmKzIlUkxB8FDJKFR6",
+        "role": "SUPER_ADMIN",
+        "officeId": null,
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:52.842Z",
+        "updatedAt": "2026-10-13T02:51:52.842Z"
+      },
+      {
+        "id": "cmv634ljx0002h6issf8uc3y8",
+        "username": "dhankuta_user",
+        "name": "धनकुटा कार्यालय प्रतिनिधि",
+        "passwordHash": "$2b$10$C3yL4OPtEUnPcKIMBXtcke.hhTvFMRFBuKNhiuGXL3gda8UIlYKF6",
+        "role": "OFFICE_USER",
+        "officeId": "OFFICE_DHANKUTA",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:52.989Z",
+        "updatedAt": "2026-10-13T02:51:52.989Z"
+      },
+      {
+        "id": "cmv634lnp0004h6iswrag05hb",
+        "username": "udayapur_user",
+        "name": "उदयपुर कार्यालय प्रतिनिधि",
+        "passwordHash": "$2b$10$nwObvJMKWLZh1INA3W7gOOFHrBk56VpGisWzqTTqoPaEvG6W.an7m",
+        "role": "OFFICE_USER",
+        "officeId": "OFFICE_UDAYAPUR",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:53.125Z",
+        "updatedAt": "2026-10-13T02:51:53.125Z"
+      },
+      {
+        "id": "cmv634lri0006h6is92xru7ec",
+        "username": "urlabari_user",
+        "name": "उर्लाबारी कार्यालय प्रतिनिधि",
+        "passwordHash": "$2b$10$be58fWAQCkVXjAuA2Rkloey1OM.ir7d53wGBUs.4tcRicfp9q5uxC",
+        "role": "OFFICE_USER",
+        "officeId": "OFFICE_URLABARI",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:53.262Z",
+        "updatedAt": "2026-10-13T02:51:53.262Z"
+      },
+      {
+        "id": "cmv634lvc0008h6isey5eimgo",
+        "username": "jhapa_user",
+        "name": "झापा कार्यालय प्रतिनिधि",
+        "passwordHash": "$2b$10$qW.pq/H/ZuKajyZmuyB1A.TL8ppGSLGupY95jH5XB2.hqom9W3xqS",
+        "role": "OFFICE_USER",
+        "officeId": "OFFICE_JHAPA",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:53.400Z",
+        "updatedAt": "2026-10-13T02:51:53.400Z"
+      },
+      {
+        "id": "cmv634lz4000ah6is0u87l4mx",
+        "username": "dharan_user",
+        "name": "धरान कार्यालय प्रतिनिधि",
+        "passwordHash": "$2b$10$xBL1rWjqQRsAD4r..wBOk.fi5h9aW848jrK6oRR.HTPjkrYD59gQa",
+        "role": "OFFICE_USER",
+        "officeId": "OFFICE_DHARAN",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:53.536Z",
+        "updatedAt": "2026-10-13T02:51:53.536Z"
+      },
+      {
+        "id": "cmv634m2y000ch6is6sqe23xc",
+        "username": "itahari_user",
+        "name": "इटहरी कार्यालय प्रतिनिधि",
+        "passwordHash": "$2b$10$mRq0ZSOQ0JRm.j9GKw8XiuhEYKgaKhNY7Z0O2IiylwpSQS2JpPXPq",
+        "role": "OFFICE_USER",
+        "officeId": "OFFICE_ITAHARI",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:53.675Z",
+        "updatedAt": "2026-10-13T02:51:53.675Z"
+      },
+      {
+        "id": "cmv634m6q000eh6iseerygnzz",
+        "username": "okhaldhunga_user",
+        "name": "ओखलढुङ्गा कार्यालय प्रतिनिधि",
+        "passwordHash": "$2b$10$xqu2aYyM76/WINyYdgsZLuhugeqFxRzqwNnpTDw8JYGN2Zm6jXHpC",
+        "role": "OFFICE_USER",
+        "officeId": "OFFICE_OKHALDHUNGA",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:53.811Z",
+        "updatedAt": "2026-10-13T02:51:53.811Z"
+      },
+      {
+        "id": "cmv634mak000gh6isfxymz0ty",
+        "username": "biratnagar_user",
+        "name": "विराटनगर कार्यालय प्रतिनिधि",
+        "passwordHash": "$2b$10$aURo1Zj8BZb.f5XUVDZACe14oz.OwsztiTY.anuvuyGmFAtViwKra",
+        "role": "OFFICE_USER",
+        "officeId": "OFFICE_BIRATNAGAR",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:53.948Z",
+        "updatedAt": "2026-10-13T02:51:53.948Z"
+      }
+    ],
+    "companies": [
+      {
+        "id": "cmv634mbk000oh6isvfqlcjyg",
+        "name": "Takeda (Shire/Baxalta)",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:53.984Z"
+      },
+      {
+        "id": "cmv634mc2000vh6isglvt271w",
+        "name": "Novo Nordisk",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.003Z"
+      },
+      {
+        "id": "cmv634mco0014h6isbqj86g7r",
+        "name": "CSL Behring",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.024Z"
+      },
+      {
+        "id": "cmv634mda001dh6islbpg9e4h",
+        "name": "Octapharma",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.046Z"
+      },
+      {
+        "id": "cmv634mdr001kh6ismdcmscb8",
+        "name": "Pfizer",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.064Z"
+      },
+      {
+        "id": "cmv634me5001ph6isybjx52v1",
+        "name": "CIBA",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.078Z"
+      },
+      {
+        "id": "cmv634mek001uh6isdx4nz53z",
+        "name": "Grifols",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.092Z"
+      },
+      {
+        "id": "cmv634mex001zh6isu4zvovyt",
+        "name": "Roche / Chugai",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.106Z"
+      }
+    ],
+    "products": [
+      {
+        "id": "cmv634mbq000qh6isaokxvqgm",
+        "companyId": "cmv634mbk000oh6isvfqlcjyg",
+        "name": "Advate",
+        "factorType": "Factor VIII",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:53.990Z"
+      },
+      {
+        "id": "cmv634mbu000sh6is37qrba10",
+        "companyId": "cmv634mbk000oh6isvfqlcjyg",
+        "name": "Rixubis",
+        "factorType": "Factor IX",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:53.994Z"
+      },
+      {
+        "id": "cmv634mby000uh6isqhx4l4n7",
+        "companyId": "cmv634mbk000oh6isvfqlcjyg",
+        "name": "Feiba",
+        "factorType": "Other",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:53.998Z"
+      },
+      {
+        "id": "cmv634mc6000xh6iss13r1ot1",
+        "companyId": "cmv634mc2000vh6isglvt271w",
+        "name": "NovoSeven RT",
+        "factorType": "Factor VII",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.007Z"
+      },
+      {
+        "id": "cmv634mcb000zh6ist02n7xrf",
+        "companyId": "cmv634mc2000vh6isglvt271w",
+        "name": "NovoEight",
+        "factorType": "Factor VIII",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.011Z"
+      },
+      {
+        "id": "cmv634mcf0011h6istz42e7de",
+        "companyId": "cmv634mc2000vh6isglvt271w",
+        "name": "NovoNine",
+        "factorType": "Factor IX",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.015Z"
+      },
+      {
+        "id": "cmv634mck0013h6isj9anck9a",
+        "companyId": "cmv634mc2000vh6isglvt271w",
+        "name": "Novo 7",
+        "factorType": "Factor VII",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.020Z"
+      },
+      {
+        "id": "cmv634mcs0016h6isxbg6mrx9",
+        "companyId": "cmv634mco0014h6isbqj86g7r",
+        "name": "Helixate FS",
+        "factorType": "Factor VIII",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.028Z"
+      },
+      {
+        "id": "cmv634mcx0018h6ispuk851hv",
+        "companyId": "cmv634mco0014h6isbqj86g7r",
+        "name": "Idelvion",
+        "factorType": "Factor IX",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.033Z"
+      },
+      {
+        "id": "cmv634md1001ah6is5urcym1c",
+        "companyId": "cmv634mco0014h6isbqj86g7r",
+        "name": "Factor VIII (CSL)",
+        "factorType": "Factor VIII",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.038Z"
+      },
+      {
+        "id": "cmv634md5001ch6is1oludk5m",
+        "companyId": "cmv634mco0014h6isbqj86g7r",
+        "name": "Factor IX (CSL)",
+        "factorType": "Factor IX",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.042Z"
+      },
+      {
+        "id": "cmv634mde001fh6iss0dyjo9f",
+        "companyId": "cmv634mda001dh6islbpg9e4h",
+        "name": "Octanate",
+        "factorType": "Factor VIII",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.050Z"
+      },
+      {
+        "id": "cmv634mdj001hh6isydhk3esr",
+        "companyId": "cmv634mda001dh6islbpg9e4h",
+        "name": "Octanine F",
+        "factorType": "Factor IX",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.055Z"
+      },
+      {
+        "id": "cmv634mdn001jh6isiwb4qjxf",
+        "companyId": "cmv634mda001dh6islbpg9e4h",
+        "name": "Wilate",
+        "factorType": "Other",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.059Z"
+      },
+      {
+        "id": "cmv634mdv001mh6is6hvv6obp",
+        "companyId": "cmv634mdr001kh6ismdcmscb8",
+        "name": "BeneFIX",
+        "factorType": "Factor IX",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.068Z"
+      },
+      {
+        "id": "cmv634me1001oh6is48emc4z1",
+        "companyId": "cmv634mdr001kh6ismdcmscb8",
+        "name": "Xyntha",
+        "factorType": "Factor VIII",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.073Z"
+      },
+      {
+        "id": "cmv634mea001rh6islya801jk",
+        "companyId": "cmv634me5001ph6isybjx52v1",
+        "name": "CIBA Factor VIII",
+        "factorType": "Factor VIII",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.082Z"
+      },
+      {
+        "id": "cmv634mef001th6isojzuugud",
+        "companyId": "cmv634me5001ph6isybjx52v1",
+        "name": "CIBA Factor IX",
+        "factorType": "Factor IX",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.087Z"
+      },
+      {
+        "id": "cmv634meo001wh6ismz2s0csw",
+        "companyId": "cmv634mek001uh6isdx4nz53z",
+        "name": "Alphanate",
+        "factorType": "Factor VIII",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.096Z"
+      },
+      {
+        "id": "cmv634met001yh6isfhfapu5m",
+        "companyId": "cmv634mek001uh6isdx4nz53z",
+        "name": "AlphaNine SD",
+        "factorType": "Factor IX",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.101Z"
+      },
+      {
+        "id": "cmv634mf20021h6isag9ovrbz",
+        "companyId": "cmv634mex001zh6isu4zvovyt",
+        "name": "Hemlibra (Emicizumab)",
+        "factorType": "Other",
+        "isActive": true,
+        "createdAt": "2026-10-13T02:51:54.110Z"
+      }
+    ],
+    "productCapacities": [
+      {
+        "id": "cmv634maq000hh6isa7khilau",
+        "capacityIu": 250,
+        "label": "250 IU",
+        "isActive": true
+      },
+      {
+        "id": "cmv634mav000ih6is7ij48sqm",
+        "capacityIu": 500,
+        "label": "500 IU",
+        "isActive": true
+      },
+      {
+        "id": "cmv634maz000jh6isgfo0q7d8",
+        "capacityIu": 750,
+        "label": "750 IU",
+        "isActive": true
+      },
+      {
+        "id": "cmv634mb3000kh6isnkbpmlnw",
+        "capacityIu": 1000,
+        "label": "1000 IU",
+        "isActive": true
+      },
+      {
+        "id": "cmv634mb8000lh6isi320vt9q",
+        "capacityIu": 1500,
+        "label": "1500 IU",
+        "isActive": true
+      },
+      {
+        "id": "cmv634mbc000mh6isk9jhsx9n",
+        "capacityIu": 2000,
+        "label": "2000 IU",
+        "isActive": true
+      },
+      {
+        "id": "cmv634mbg000nh6isz4lkmu6v",
+        "capacityIu": 3000,
+        "label": "3000 IU",
+        "isActive": true
+      }
+    ],
+    "centralStockBatches": [
+      {
+        "id": "cmv63uczf00021ytrfpx941vr",
+        "companyId": "cmv634mbk000oh6isvfqlcjyg",
+        "productId": "cmv634mbq000qh6isaokxvqgm",
+        "capacityIu": 500,
+        "batchNumber": "BTH-TEST-1791861114927",
+        "expiryDate": "2028-10-13T03:11:54.931Z",
+        "receivedVials": 20,
+        "transferredVials": 8,
+        "adjustedVials": 0,
+        "currentVials": 12,
+        "isQuarantined": false,
+        "createdAt": "2026-10-13T03:11:54.939Z",
+        "updatedAt": "2026-10-13T03:11:54.967Z"
+      },
+      {
+        "id": "cmv63ut0w000211x10ht76fgl",
+        "companyId": "cmv634mbk000oh6isvfqlcjyg",
+        "productId": "cmv634mbq000qh6isaokxvqgm",
+        "capacityIu": 500,
+        "batchNumber": "BTH-TEST-1791861135715",
+        "expiryDate": "2028-10-13T03:12:15.720Z",
+        "receivedVials": 20,
+        "transferredVials": 8,
+        "adjustedVials": 0,
+        "currentVials": 12,
+        "isQuarantined": false,
+        "createdAt": "2026-10-13T03:12:15.728Z",
+        "updatedAt": "2026-10-13T03:12:15.758Z"
+      }
+    ],
+    "centralStockEntries": [
+      {
+        "id": "cmv63uczl00041ytrohk1s92z",
+        "receiptDate": "2026-10-13T03:11:54.932Z",
+        "companyId": "cmv634mbk000oh6isvfqlcjyg",
+        "productId": "cmv634mbq000qh6isaokxvqgm",
+        "capacityIu": 500,
+        "vialCount": 20,
+        "totalIu": 10000,
+        "batchNumber": "BTH-TEST-1791861114927",
+        "expiryDate": "2028-10-13T03:11:54.931Z",
+        "remarks": "Test donation receipt",
+        "createdById": "cmv634lfu0000h6is7j8ia5nk",
+        "createdAt": "2026-10-13T03:11:54.945Z"
+      },
+      {
+        "id": "cmv63ut12000411x1qdx7ds5l",
+        "receiptDate": "2026-10-13T03:12:15.721Z",
+        "companyId": "cmv634mbk000oh6isvfqlcjyg",
+        "productId": "cmv634mbq000qh6isaokxvqgm",
+        "capacityIu": 500,
+        "vialCount": 20,
+        "totalIu": 10000,
+        "batchNumber": "BTH-TEST-1791861135715",
+        "expiryDate": "2028-10-13T03:12:15.720Z",
+        "remarks": "Test donation receipt",
+        "createdById": "cmv634lfu0000h6is7j8ia5nk",
+        "createdAt": "2026-10-13T03:12:15.734Z"
+      }
+    ],
+    "stockTransfers": [
+      {
+        "id": "cmv63ud0n000a1ytr9fnu76gl",
+        "transferNumber": "TRF-2026-49638262",
+        "transferDate": "2026-10-13T03:11:54.961Z",
+        "destinationOfficeId": "OFFICE_URLABARI",
+        "sentById": "cmv634lfu0000h6is7j8ia5nk",
+        "totalVials": 8,
+        "totalIu": 4000,
+        "remarks": "Send 8 vials to Urlabari",
+        "status": "COMPLETED",
+        "createdAt": "2026-10-13T03:11:54.983Z"
+      },
+      {
+        "id": "cmv63ut1y000a11x190e9dwdr",
+        "transferNumber": "TRF-2026-57532765",
+        "transferDate": "2026-10-13T03:12:15.750Z",
+        "destinationOfficeId": "OFFICE_URLABARI",
+        "sentById": "cmv634lfu0000h6is7j8ia5nk",
+        "totalVials": 8,
+        "totalIu": 4000,
+        "remarks": "Send 8 vials to Urlabari",
+        "status": "COMPLETED",
+        "createdAt": "2026-10-13T03:12:15.766Z"
+      }
+    ],
+    "stockTransferItems": [
+      {
+        "id": "cmv63ud0o000c1ytr3k10xak2",
+        "stockTransferId": "cmv63ud0n000a1ytr9fnu76gl",
+        "centralStockBatchId": "cmv63uczf00021ytrfpx941vr",
+        "companyName": "Takeda (Shire/Baxalta)",
+        "productName": "Advate",
+        "factorType": "Factor VIII",
+        "capacityIu": 500,
+        "batchNumber": "BTH-TEST-1791861114927",
+        "expiryDate": "2028-10-13T03:11:54.931Z",
+        "vialCount": 8,
+        "totalIu": 4000
+      },
+      {
+        "id": "cmv63ut1y000c11x1cf38ba2t",
+        "stockTransferId": "cmv63ut1y000a11x190e9dwdr",
+        "centralStockBatchId": "cmv63ut0w000211x10ht76fgl",
+        "companyName": "Takeda (Shire/Baxalta)",
+        "productName": "Advate",
+        "factorType": "Factor VIII",
+        "capacityIu": 500,
+        "batchNumber": "BTH-TEST-1791861135715",
+        "expiryDate": "2028-10-13T03:12:15.720Z",
+        "vialCount": 8,
+        "totalIu": 4000
+      }
+    ],
+    "officeStockBatches": [
+      {
+        "id": "cmv63ud0j00081ytr3fa8ftqu",
+        "officeId": "OFFICE_URLABARI",
+        "companyId": "cmv634mbk000oh6isvfqlcjyg",
+        "productId": "cmv634mbq000qh6isaokxvqgm",
+        "capacityIu": 500,
+        "batchNumber": "BTH-TEST-1791861114927",
+        "expiryDate": "2028-10-13T03:11:54.931Z",
+        "receivedVials": 8,
+        "distributedVials": 5,
+        "adjustedVials": 0,
+        "currentVials": 3,
+        "isQuarantined": false,
+        "createdAt": "2026-10-13T03:11:54.979Z",
+        "updatedAt": "2026-10-13T03:11:55.055Z"
+      },
+      {
+        "id": "cmv63ut1v000811x1midosud2",
+        "officeId": "OFFICE_URLABARI",
+        "companyId": "cmv634mbk000oh6isvfqlcjyg",
+        "productId": "cmv634mbq000qh6isaokxvqgm",
+        "capacityIu": 500,
+        "batchNumber": "BTH-TEST-1791861135715",
+        "expiryDate": "2028-10-13T03:12:15.720Z",
+        "receivedVials": 8,
+        "distributedVials": 5,
+        "adjustedVials": 0,
+        "currentVials": 3,
+        "isQuarantined": false,
+        "createdAt": "2026-10-13T03:12:15.763Z",
+        "updatedAt": "2026-10-13T03:12:15.836Z"
+      }
+    ],
+    "patients": [
+      {
+        "id": "cmv63sdhq0005fuxjp61vfl56",
+        "patientCode": "HEP-TEST-1791861022284",
+        "fullName": "परीक्षण बिरामी (Test Patient)",
+        "dateOfBirth": null,
+        "isDobEstimated": false,
+        "age": 24,
+        "gender": null,
+        "phone": "9800000000",
+        "bloodGroup": "A+",
+        "province": "कोशी प्रदेश",
+        "district": "मोरङ",
+        "localLevel": "उर्लाबारी नगरपालिका",
+        "wardNo": 3,
+        "toleAddress": null,
+        "tempAddress": null,
+        "factorType": "Factor VIII",
+        "otherFactorDetails": null,
+        "factorLevelPercent": null,
+        "severity": "SEVERE",
+        "severityOverridden": false,
+        "overrideReason": null,
+        "registeredOfficeId": "OFFICE_URLABARI",
+        "isActive": true,
+        "createdAt": "2026-10-13T03:10:22.287Z",
+        "updatedAt": "2026-10-13T03:10:22.287Z"
+      },
+      {
+        "id": "cmv63swnu0006pfkl4e3bjexz",
+        "patientCode": "HEP-TEST-1791861047128",
+        "fullName": "परीक्षण बिरामी (Test Patient)",
+        "dateOfBirth": null,
+        "isDobEstimated": false,
+        "age": 24,
+        "gender": null,
+        "phone": "9800000000",
+        "bloodGroup": "A+",
+        "province": "कोशी प्रदेश",
+        "district": "मोरङ",
+        "localLevel": "उर्लाबारी नगरपालिका",
+        "wardNo": 3,
+        "toleAddress": null,
+        "tempAddress": null,
+        "factorType": "Factor VIII",
+        "otherFactorDetails": null,
+        "factorLevelPercent": null,
+        "severity": "SEVERE",
+        "severityOverridden": false,
+        "overrideReason": null,
+        "registeredOfficeId": "OFFICE_URLABARI",
+        "isActive": true,
+        "createdAt": "2026-10-13T03:10:47.130Z",
+        "updatedAt": "2026-10-13T03:10:47.130Z"
+      },
+      {
+        "id": "cmv63ud1k000f1ytrj6km8byf",
+        "patientCode": "HEP-TEST-1791861115015",
+        "fullName": "परीक्षण बिरामी (Test Patient)",
+        "dateOfBirth": null,
+        "isDobEstimated": false,
+        "age": 24,
+        "gender": null,
+        "phone": "9800000000",
+        "bloodGroup": "A+",
+        "province": "कोशी प्रदेश",
+        "district": "मोरङ",
+        "localLevel": "उर्लाबारी नगरपालिका",
+        "wardNo": 3,
+        "toleAddress": null,
+        "tempAddress": null,
+        "factorType": "Factor VIII",
+        "otherFactorDetails": null,
+        "factorLevelPercent": null,
+        "severity": "SEVERE",
+        "severityOverridden": false,
+        "overrideReason": null,
+        "registeredOfficeId": "OFFICE_URLABARI",
+        "isActive": true,
+        "createdAt": "2026-10-13T03:11:55.016Z",
+        "updatedAt": "2026-10-13T03:11:55.016Z"
+      },
+      {
+        "id": "cmv63ut2s000f11x1l7sc6427",
+        "patientCode": "HEP-TEST-1791861135794",
+        "fullName": "परीक्षण बिरामी (Test Patient)",
+        "dateOfBirth": null,
+        "isDobEstimated": false,
+        "age": 24,
+        "gender": null,
+        "phone": "9800000000",
+        "bloodGroup": "A+",
+        "province": "कोशी प्रदेश",
+        "district": "मोरङ",
+        "localLevel": "उर्लाबारी नगरपालिका",
+        "wardNo": 3,
+        "toleAddress": null,
+        "tempAddress": null,
+        "factorType": "Factor VIII",
+        "otherFactorDetails": null,
+        "factorLevelPercent": null,
+        "severity": "SEVERE",
+        "severityOverridden": false,
+        "overrideReason": null,
+        "registeredOfficeId": "OFFICE_URLABARI",
+        "isActive": true,
+        "createdAt": "2026-10-13T03:12:15.796Z",
+        "updatedAt": "2026-10-13T03:12:15.796Z"
+      }
+    ],
+    "patientDistributions": [
+      {
+        "id": "cmv63ud22000i1ytr0eoahg96",
+        "voucherNumber": "DIST-2026-50278284",
+        "distributionDate": "2026-10-13T03:11:55.024Z",
+        "patientId": "cmv63ud1k000f1ytrj6km8byf",
+        "officeId": "OFFICE_URLABARI",
+        "dispensedById": "cmv634lri0006h6is92xru7ec",
+        "prescribingClinician": null,
+        "purposes": "[\"जोर्नीमा रक्तस्राव (सामान्य)\"]",
+        "purposeDetails": null,
+        "totalVials": 3,
+        "totalIu": 1500,
+        "remarks": null,
+        "createdAt": "2026-10-13T03:11:55.034Z"
+      },
+      {
+        "id": "cmv63ud2t000o1ytr6worc220",
+        "voucherNumber": "DIST-2026-50518709",
+        "distributionDate": "2026-10-13T03:11:55.048Z",
+        "patientId": "cmv63ud1k000f1ytrj6km8byf",
+        "officeId": "OFFICE_URLABARI",
+        "dispensedById": "cmv634lri0006h6is92xru7ec",
+        "prescribingClinician": null,
+        "purposes": "[\"नियमित रोकथाम (Prophylaxis)\"]",
+        "purposeDetails": null,
+        "totalVials": 2,
+        "totalIu": 1000,
+        "remarks": null,
+        "createdAt": "2026-10-13T03:11:55.061Z"
+      },
+      {
+        "id": "cmv63ut3d000i11x1gj5kgt69",
+        "voucherNumber": "DIST-2026-58089544",
+        "distributionDate": "2026-10-13T03:12:15.804Z",
+        "patientId": "cmv63ut2s000f11x1l7sc6427",
+        "officeId": "OFFICE_URLABARI",
+        "dispensedById": "cmv634lri0006h6is92xru7ec",
+        "prescribingClinician": null,
+        "purposes": "[\"जोर्नीमा रक्तस्राव (सामान्य)\"]",
+        "purposeDetails": null,
+        "totalVials": 3,
+        "totalIu": 1500,
+        "remarks": null,
+        "createdAt": "2026-10-13T03:12:15.817Z"
+      },
+      {
+        "id": "cmv63ut3y000o11x12g0afirc",
+        "voucherNumber": "DIST-2026-58315600",
+        "distributionDate": "2026-10-13T03:12:15.828Z",
+        "patientId": "cmv63ut2s000f11x1l7sc6427",
+        "officeId": "OFFICE_URLABARI",
+        "dispensedById": "cmv634lri0006h6is92xru7ec",
+        "prescribingClinician": null,
+        "purposes": "[\"नियमित रोकथाम (Prophylaxis)\"]",
+        "purposeDetails": null,
+        "totalVials": 2,
+        "totalIu": 1000,
+        "remarks": null,
+        "createdAt": "2026-10-13T03:12:15.838Z"
+      }
+    ],
+    "patientDistributionItems": [
+      {
+        "id": "cmv63ud22000k1ytrdci226dv",
+        "patientDistributionId": "cmv63ud22000i1ytr0eoahg96",
+        "officeStockBatchId": "cmv63ud0j00081ytr3fa8ftqu",
+        "companyName": "Takeda (Shire/Baxalta)",
+        "productName": "Advate",
+        "factorType": "Factor VIII",
+        "capacityIu": 500,
+        "batchNumber": "BTH-TEST-1791861114927",
+        "expiryDate": "2028-10-13T03:11:54.931Z",
+        "vialCount": 3,
+        "totalIu": 1500
+      },
+      {
+        "id": "cmv63ud2t000q1ytr3lha30zo",
+        "patientDistributionId": "cmv63ud2t000o1ytr6worc220",
+        "officeStockBatchId": "cmv63ud0j00081ytr3fa8ftqu",
+        "companyName": "Takeda (Shire/Baxalta)",
+        "productName": "Advate",
+        "factorType": "Factor VIII",
+        "capacityIu": 500,
+        "batchNumber": "BTH-TEST-1791861114927",
+        "expiryDate": "2028-10-13T03:11:54.931Z",
+        "vialCount": 2,
+        "totalIu": 1000
+      },
+      {
+        "id": "cmv63ut3d000k11x1l5mv7e56",
+        "patientDistributionId": "cmv63ut3d000i11x1gj5kgt69",
+        "officeStockBatchId": "cmv63ut1v000811x1midosud2",
+        "companyName": "Takeda (Shire/Baxalta)",
+        "productName": "Advate",
+        "factorType": "Factor VIII",
+        "capacityIu": 500,
+        "batchNumber": "BTH-TEST-1791861135715",
+        "expiryDate": "2028-10-13T03:12:15.720Z",
+        "vialCount": 3,
+        "totalIu": 1500
+      },
+      {
+        "id": "cmv63ut3y000q11x1jllguah5",
+        "patientDistributionId": "cmv63ut3y000o11x12g0afirc",
+        "officeStockBatchId": "cmv63ut1v000811x1midosud2",
+        "companyName": "Takeda (Shire/Baxalta)",
+        "productName": "Advate",
+        "factorType": "Factor VIII",
+        "capacityIu": 500,
+        "batchNumber": "BTH-TEST-1791861135715",
+        "expiryDate": "2028-10-13T03:12:15.720Z",
+        "vialCount": 2,
+        "totalIu": 1000
+      }
+    ],
+    "purposes": [
+      {
+        "id": "cmv634mf70022h6is12b39hfu",
+        "category": "BLEED_SITE",
+        "nameNepali": "जोर्नीमा रक्तस्राव (सामान्य)",
+        "nameEnglish": "Joint Bleed (General)",
+        "isActive": true,
+        "sortOrder": 1
+      },
+      {
+        "id": "cmv634mfc0023h6is2uky5ahz",
+        "category": "BLEED_SITE",
+        "nameNepali": "घुँडाको जोर्नीमा रक्तस्राव",
+        "nameEnglish": "Knee Joint Bleed (Hemarthrosis)",
+        "isActive": true,
+        "sortOrder": 2
+      },
+      {
+        "id": "cmv634mfh0024h6is7ivpc8fo",
+        "category": "BLEED_SITE",
+        "nameNepali": "कुहिनाको जोर्नीमा रक्तस्राव",
+        "nameEnglish": "Elbow Joint Bleed",
+        "isActive": true,
+        "sortOrder": 3
+      },
+      {
+        "id": "cmv634mfl0025h6ise236ffl4",
+        "category": "BLEED_SITE",
+        "nameNepali": "गोलीगाँठोको जोर्नीमा रक्तस्राव",
+        "nameEnglish": "Ankle Joint Bleed",
+        "isActive": true,
+        "sortOrder": 4
+      },
+      {
+        "id": "cmv634mfp0026h6is1ilmu7xa",
+        "category": "BLEED_SITE",
+        "nameNepali": "काँध वा नाडीको जोर्नीमा रक्तस्राव",
+        "nameEnglish": "Shoulder / Wrist Joint Bleed",
+        "isActive": true,
+        "sortOrder": 5
+      },
+      {
+        "id": "cmv634mfu0027h6isnhmawjd3",
+        "category": "BLEED_SITE",
+        "nameNepali": "मांसपेशीमा रक्तस्राव",
+        "nameEnglish": "Muscle Bleed (Hematoma)",
+        "isActive": true,
+        "sortOrder": 6
+      },
+      {
+        "id": "cmv634mfy0028h6is4y2gqsrp",
+        "category": "BLEED_SITE",
+        "nameNepali": "छाला वा नरम तन्तुमा रक्तस्राव",
+        "nameEnglish": "Subcutaneous / Soft Tissue Bleed",
+        "isActive": true,
+        "sortOrder": 7
+      },
+      {
+        "id": "cmv634mg20029h6is65ztm33s",
+        "category": "BLEED_SITE",
+        "nameNepali": "नाकबाट रक्तस्राव",
+        "nameEnglish": "Epistaxis (Nose Bleed)",
+        "isActive": true,
+        "sortOrder": 8
+      },
+      {
+        "id": "cmv634mg5002ah6is7cwtqdny",
+        "category": "BLEED_SITE",
+        "nameNepali": "मुख वा गिजाबाट रक्तस्राव",
+        "nameEnglish": "Oral / Gum Bleed",
+        "isActive": true,
+        "sortOrder": 9
+      },
+      {
+        "id": "cmv634mgb002bh6ish9cplo2y",
+        "category": "BLEED_SITE",
+        "nameNepali": "दाँत निकाल्दा वा दन्त उपचारपछि रक्तस्राव",
+        "nameEnglish": "Post-dental Extraction Bleed",
+        "isActive": true,
+        "sortOrder": 10
+      },
+      {
+        "id": "cmv634mgf002ch6is3i9kdg8g",
+        "category": "BLEED_SITE",
+        "nameNepali": "पिसाबमा रगत",
+        "nameEnglish": "Hematuria (Urinary Bleed)",
+        "isActive": true,
+        "sortOrder": 11
+      },
+      {
+        "id": "cmv634mgi002dh6isueu6zqnj",
+        "category": "BLEED_SITE",
+        "nameNepali": "दिसामा रगत वा पेट–आन्द्राभित्र रक्तस्राव",
+        "nameEnglish": "Gastrointestinal Bleed (GI Bleed)",
+        "isActive": true,
+        "sortOrder": 12
+      },
+      {
+        "id": "cmv634mgo002eh6isvksjwb6d",
+        "category": "BLEED_SITE",
+        "nameNepali": "टाउको वा मस्तिष्कभित्र रक्तस्राव",
+        "nameEnglish": "Intracranial Hemorrhage (Emergency)",
+        "isActive": true,
+        "sortOrder": 13
+      },
+      {
+        "id": "cmv634mgt002fh6isp1v6xuuq",
+        "category": "BLEED_SITE",
+        "nameNepali": "घाँटीमा रक्तस्राव",
+        "nameEnglish": "Neck / Throat Bleed (Emergency)",
+        "isActive": true,
+        "sortOrder": 14
+      },
+      {
+        "id": "cmv634mgx002gh6isbk8pwjqe",
+        "category": "BLEED_SITE",
+        "nameNepali": "अन्य स्थानमा रक्तस्राव",
+        "nameEnglish": "Other Bleed Site",
+        "isActive": true,
+        "sortOrder": 15
+      },
+      {
+        "id": "cmv634mh1002hh6isjxiwu5as",
+        "category": "BLEED_SITE",
+        "nameNepali": "रक्तस्रावको स्थान अज्ञात",
+        "nameEnglish": "Unknown Bleed Site",
+        "isActive": true,
+        "sortOrder": 16
+      },
+      {
+        "id": "cmv634mh6002ih6isoj1cnb6j",
+        "category": "NON_BLEED",
+        "nameNepali": "नियमित रोकथाम (Prophylaxis)",
+        "nameEnglish": "Regular Prophylaxis",
+        "isActive": true,
+        "sortOrder": 17
+      },
+      {
+        "id": "cmv634mha002jh6iskdzeqymo",
+        "category": "NON_BLEED",
+        "nameNepali": "शल्यक्रियाअघि (Pre-surgery)",
+        "nameEnglish": "Pre-surgery Preparation",
+        "isActive": true,
+        "sortOrder": 18
+      },
+      {
+        "id": "cmv634mhe002kh6isoodqph8j",
+        "category": "NON_BLEED",
+        "nameNepali": "शल्यक्रियापछि (Post-surgery)",
+        "nameEnglish": "Post-surgery Management",
+        "isActive": true,
+        "sortOrder": 19
+      },
+      {
+        "id": "cmv634mhj002lh6is8psnic9q",
+        "category": "NON_BLEED",
+        "nameNepali": "दन्त उपचार (Dental Procedure)",
+        "nameEnglish": "Dental Procedure Prophylaxis",
+        "isActive": true,
+        "sortOrder": 20
+      },
+      {
+        "id": "cmv634mhn002mh6isykfmtm63",
+        "category": "NON_BLEED",
+        "nameNepali": "चोटपटक वा दुर्घटना (Trauma/Accident)",
+        "nameEnglish": "Trauma / Injury Management",
+        "isActive": true,
+        "sortOrder": 21
+      },
+      {
+        "id": "cmv634mhr002nh6ishdzo8t8z",
+        "category": "NON_BLEED",
+        "nameNepali": "अन्य चिकित्सकीय प्रयोजन",
+        "nameEnglish": "Other Clinical Indication",
+        "isActive": true,
+        "sortOrder": 22
+      },
+      {
+        "id": "cmv634mhv002oh6isz767tjb7",
+        "category": "NON_BLEED",
+        "nameNepali": "अन्य — विवरण लेख्ने",
+        "nameEnglish": "Other (Specify in Remarks)",
+        "isActive": true,
+        "sortOrder": 23
+      }
+    ],
+    "auditLogs": [
+      {
+        "id": "cmv63sssj0005pfklk4b1u583",
+        "userId": "cmv634lfu0000h6is7j8ia5nk",
+        "userName": "Super Admin",
+        "officeId": null,
+        "action": "CENTRAL_STOCK_ENTRY",
+        "entityType": "CentralStockEntry",
+        "entityId": "cmv63ssse0004pfklv0cw9q5r",
+        "details": "{\"batchId\":\"cmv63sssa0002pfklkdd7k2an\",\"batchNumber\":\"BTH-TEST-1791861042094\",\"vialCount\":20,\"capacityIu\":500,\"totalIu\":10000}",
+        "reason": null,
+        "ipAddress": null,
+        "timestamp": "2026-10-13T03:10:42.115Z"
+      },
+      {
+        "id": "cmv63uczp00051ytrper5hc1b",
+        "userId": "cmv634lfu0000h6is7j8ia5nk",
+        "userName": "Super Admin",
+        "officeId": null,
+        "action": "CENTRAL_STOCK_ENTRY",
+        "entityType": "CentralStockEntry",
+        "entityId": "cmv63uczl00041ytrohk1s92z",
+        "details": "{\"batchId\":\"cmv63uczf00021ytrfpx941vr\",\"batchNumber\":\"BTH-TEST-1791861114927\",\"vialCount\":20,\"capacityIu\":500,\"totalIu\":10000}",
+        "reason": null,
+        "ipAddress": null,
+        "timestamp": "2026-10-13T03:11:54.949Z"
+      },
+      {
+        "id": "cmv63ud0t000d1ytrklyj2b3p",
+        "userId": "cmv634lfu0000h6is7j8ia5nk",
+        "userName": "Super Admin",
+        "officeId": null,
+        "action": "STOCK_TRANSFER_OUT",
+        "entityType": "StockTransfer",
+        "entityId": "cmv63ud0n000a1ytr9fnu76gl",
+        "details": "{\"transferNumber\":\"TRF-2026-49638262\",\"destinationOffice\":\"उर्लाबारी स्याटेलाइट\",\"totalVials\":8,\"totalIu\":4000,\"itemsCount\":1}",
+        "reason": null,
+        "ipAddress": null,
+        "timestamp": "2026-10-13T03:11:54.989Z"
+      },
+      {
+        "id": "cmv63ud27000l1ytr6tjs2sal",
+        "userId": "cmv634lri0006h6is92xru7ec",
+        "userName": "Urlabari User",
+        "officeId": "OFFICE_URLABARI",
+        "action": "PATIENT_DISTRIBUTION",
+        "entityType": "PatientDistribution",
+        "entityId": "cmv63ud22000i1ytr0eoahg96",
+        "details": "{\"voucherNumber\":\"DIST-2026-50278284\",\"patientCode\":\"HEP-TEST-1791861115015\",\"patientName\":\"परीक्षण बिरामी (Test Patient)\",\"office\":\"उर्लाबारी स्याटेलाइट\",\"totalVials\":3,\"totalIu\":1500,\"purposes\":[\"जोर्नीमा रक्तस्राव (सामान्य)\"]}",
+        "reason": null,
+        "ipAddress": null,
+        "timestamp": "2026-10-13T03:11:55.039Z"
+      },
+      {
+        "id": "cmv63ud2x000r1ytr9jw3q2yu",
+        "userId": "cmv634lri0006h6is92xru7ec",
+        "userName": "Urlabari User",
+        "officeId": "OFFICE_URLABARI",
+        "action": "PATIENT_DISTRIBUTION",
+        "entityType": "PatientDistribution",
+        "entityId": "cmv63ud2t000o1ytr6worc220",
+        "details": "{\"voucherNumber\":\"DIST-2026-50518709\",\"patientCode\":\"HEP-TEST-1791861115015\",\"patientName\":\"परीक्षण बिरामी (Test Patient)\",\"office\":\"उर्लाबारी स्याटेलाइट\",\"totalVials\":2,\"totalIu\":1000,\"purposes\":[\"नियमित रोकथाम (Prophylaxis)\"]}",
+        "reason": null,
+        "ipAddress": null,
+        "timestamp": "2026-10-13T03:11:55.066Z"
+      },
+      {
+        "id": "cmv63ut16000511x1rr97a16v",
+        "userId": "cmv634lfu0000h6is7j8ia5nk",
+        "userName": "Super Admin",
+        "officeId": null,
+        "action": "CENTRAL_STOCK_ENTRY",
+        "entityType": "CentralStockEntry",
+        "entityId": "cmv63ut12000411x1qdx7ds5l",
+        "details": "{\"batchId\":\"cmv63ut0w000211x10ht76fgl\",\"batchNumber\":\"BTH-TEST-1791861135715\",\"vialCount\":20,\"capacityIu\":500,\"totalIu\":10000}",
+        "reason": null,
+        "ipAddress": null,
+        "timestamp": "2026-10-13T03:12:15.738Z"
+      },
+      {
+        "id": "cmv63ut22000d11x11pde9lfs",
+        "userId": "cmv634lfu0000h6is7j8ia5nk",
+        "userName": "Super Admin",
+        "officeId": null,
+        "action": "STOCK_TRANSFER_OUT",
+        "entityType": "StockTransfer",
+        "entityId": "cmv63ut1y000a11x190e9dwdr",
+        "details": "{\"transferNumber\":\"TRF-2026-57532765\",\"destinationOffice\":\"उर्लाबारी स्याटेलाइट\",\"totalVials\":8,\"totalIu\":4000,\"itemsCount\":1}",
+        "reason": null,
+        "ipAddress": null,
+        "timestamp": "2026-10-13T03:12:15.770Z"
+      },
+      {
+        "id": "cmv63ut3h000l11x1olhdpa9d",
+        "userId": "cmv634lri0006h6is92xru7ec",
+        "userName": "Urlabari User",
+        "officeId": "OFFICE_URLABARI",
+        "action": "PATIENT_DISTRIBUTION",
+        "entityType": "PatientDistribution",
+        "entityId": "cmv63ut3d000i11x1gj5kgt69",
+        "details": "{\"voucherNumber\":\"DIST-2026-58089544\",\"patientCode\":\"HEP-TEST-1791861135794\",\"patientName\":\"परीक्षण बिरामी (Test Patient)\",\"office\":\"उर्लाबारी स्याटेलाइट\",\"totalVials\":3,\"totalIu\":1500,\"purposes\":[\"जोर्नीमा रक्तस्राव (सामान्य)\"]}",
+        "reason": null,
+        "ipAddress": null,
+        "timestamp": "2026-10-13T03:12:15.822Z"
+      },
+      {
+        "id": "cmv63ut42000r11x1h8cdayb2",
+        "userId": "cmv634lri0006h6is92xru7ec",
+        "userName": "Urlabari User",
+        "officeId": "OFFICE_URLABARI",
+        "action": "PATIENT_DISTRIBUTION",
+        "entityType": "PatientDistribution",
+        "entityId": "cmv63ut3y000o11x12g0afirc",
+        "details": "{\"voucherNumber\":\"DIST-2026-58315600\",\"patientCode\":\"HEP-TEST-1791861135794\",\"patientName\":\"परीक्षण बिरामी (Test Patient)\",\"office\":\"उर्लाबारी स्याटेलाइट\",\"totalVials\":2,\"totalIu\":1000,\"purposes\":[\"नियमित रोकथाम (Prophylaxis)\"]}",
+        "reason": null,
+        "ipAddress": null,
+        "timestamp": "2026-10-13T03:12:15.842Z"
+      }
+    ],
+    "settings": [
+      {
+        "key": "APP_NAME",
+        "value": "Hemophilia Factor Management App",
+        "updatedAt": "2026-10-13T02:51:54.215Z"
+      },
+      {
+        "key": "LOW_STOCK_THRESHOLD",
+        "value": "10",
+        "updatedAt": "2026-10-13T02:51:54.219Z"
+      },
+      {
+        "key": "EXPIRY_ALERT_DAYS",
+        "value": "90",
+        "updatedAt": "2026-10-13T02:51:54.222Z"
+      },
+      {
+        "key": "ORGANIZATION_NAME",
+        "value": "Nepal Hemophilia Society",
+        "updatedAt": "2026-10-13T02:51:54.225Z"
+      }
+    ]
+  }
+}

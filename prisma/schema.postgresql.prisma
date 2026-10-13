@@ -1,0 +1,270 @@
+// Production PostgreSQL Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  name         String
+  passwordHash String
+  role         String    // "SUPER_ADMIN" | "OFFICE_USER"
+  officeId     String?
+  office       Office?   @relation(fields: [officeId], references: [id])
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  stockEntries   CentralStockEntry[]
+  stockTransfers StockTransfer[]
+  distributions  PatientDistribution[]
+}
+
+model Office {
+  id          String   @id // e.g. "OFFICE_DHANKUTA", "OFFICE_BIRATNAGAR"
+  nameNepali  String
+  nameEnglish String
+  district    String
+  isCentral   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users             User[]
+  stockBatches      OfficeStockBatch[]
+  receivedTransfers StockTransfer[]
+  distributions     PatientDistribution[]
+}
+
+model Company {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  products            Product[]
+  centralStockBatches CentralStockBatch[]
+  officeStockBatches  OfficeStockBatch[]
+  centralStockEntries CentralStockEntry[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  name        String
+  factorType  String   // "Factor VIII", "Factor IX", "Factor VII", "Factor II", "Factor XI", "Factor X", "Other"
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  centralStockBatches CentralStockBatch[]
+  officeStockBatches  OfficeStockBatch[]
+  centralStockEntries CentralStockEntry[]
+
+  @@unique([companyId, name, factorType])
+}
+
+model ProductCapacity {
+  id          String   @id @default(cuid())
+  capacityIu  Int      @unique
+  label       String
+  isActive    Boolean  @default(true)
+}
+
+model CentralStockBatch {
+  id               String   @id @default(cuid())
+  companyId        String
+  company          Company  @relation(fields: [companyId], references: [id])
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id])
+  capacityIu       Int
+  batchNumber      String
+  expiryDate       DateTime
+  receivedVials    Int      @default(0)
+  transferredVials Int      @default(0)
+  adjustedVials    Int      @default(0)
+  currentVials     Int      @default(0)
+  isQuarantined    Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  transferItems    StockTransferItem[]
+
+  @@unique([productId, capacityIu, batchNumber])
+}
+
+model CentralStockEntry {
+  id          String   @id @default(cuid())
+  receiptDate DateTime
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  capacityIu  Int
+  vialCount   Int
+  totalIu     Int
+  batchNumber String
+  expiryDate  DateTime
+  remarks     String?
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model StockTransfer {
+  id                  String              @id @default(cuid())
+  transferNumber      String              @unique
+  transferDate        DateTime
+  destinationOfficeId String
+  destinationOffice   Office              @relation(fields: [destinationOfficeId], references: [id])
+  sentById            String
+  sentBy              User                @relation(fields: [sentById], references: [id])
+  totalVials          Int
+  totalIu             Int
+  remarks             String?
+  status              String              @default("COMPLETED")
+  createdAt           DateTime            @default(now())
+
+  items               StockTransferItem[]
+}
+
+model StockTransferItem {
+  id                  String            @id @default(cuid())
+  stockTransferId     String
+  stockTransfer       StockTransfer     @relation(fields: [stockTransferId], references: [id], onDelete: Cascade)
+  centralStockBatchId String
+  centralStockBatch   CentralStockBatch @relation(fields: [centralStockBatchId], references: [id])
+  companyName         String
+  productName         String
+  factorType          String
+  capacityIu          Int
+  batchNumber         String
+  expiryDate          DateTime
+  vialCount           Int
+  totalIu             Int
+}
+
+model OfficeStockBatch {
+  id               String   @id @default(cuid())
+  officeId         String
+  office           Office   @relation(fields: [officeId], references: [id])
+  companyId        String
+  company          Company  @relation(fields: [companyId], references: [id])
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id])
+  capacityIu       Int
+  batchNumber      String
+  expiryDate       DateTime
+  receivedVials    Int      @default(0)
+  distributedVials Int      @default(0)
+  adjustedVials    Int      @default(0)
+  currentVials     Int      @default(0)
+  isQuarantined    Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  distributionItems PatientDistributionItem[]
+
+  @@unique([officeId, productId, capacityIu, batchNumber])
+}
+
+model Patient {
+  id                  String   @id @default(cuid())
+  patientCode         String   @unique
+  fullName            String
+  dateOfBirth         DateTime?
+  isDobEstimated      Boolean  @default(false)
+  age                 Int
+  gender              String?
+  phone               String
+  bloodGroup          String
+  province            String
+  district            String
+  localLevel          String
+  wardNo              Int
+  toleAddress         String?
+  tempAddress         String?
+  factorType          String
+  otherFactorDetails  String?
+  factorLevelPercent  Float?
+  severity            String
+  severityOverridden  Boolean  @default(false)
+  overrideReason      String?
+  registeredOfficeId  String
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  distributions       PatientDistribution[]
+}
+
+model PatientDistribution {
+  id                   String                    @id @default(cuid())
+  voucherNumber        String                    @unique
+  distributionDate     DateTime
+  patientId            String
+  patient              Patient                   @relation(fields: [patientId], references: [id])
+  officeId             String
+  office               Office                    @relation(fields: [officeId], references: [id])
+  dispensedById        String
+  dispensedBy          User                      @relation(fields: [dispensedById], references: [id])
+  prescribingClinician String?
+  purposes             String                    // JSON text
+  purposeDetails       String?
+  totalVials           Int
+  totalIu              Int
+  remarks              String?
+  createdAt            DateTime                  @default(now())
+
+  items                PatientDistributionItem[]
+}
+
+model PatientDistributionItem {
+  id                    String              @id @default(cuid())
+  patientDistributionId String
+  patientDistribution   PatientDistribution @relation(fields: [patientDistributionId], references: [id], onDelete: Cascade)
+  officeStockBatchId    String
+  officeStockBatch      OfficeStockBatch    @relation(fields: [officeStockBatchId], references: [id])
+  companyName           String
+  productName           String
+  factorType            String
+  capacityIu            Int
+  batchNumber           String
+  expiryDate            DateTime
+  vialCount             Int
+  totalIu               Int
+}
+
+model DistributionPurposeMaster {
+  id          String  @id @default(cuid())
+  category    String
+  nameNepali  String
+  nameEnglish String
+  isActive    Boolean @default(true)
+  sortOrder   Int     @default(0)
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  userName   String
+  officeId   String?
+  action     String
+  entityType String
+  entityId   String
+  details    String
+  reason     String?
+  ipAddress  String?
+  timestamp  DateTime @default(now())
+}
+
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

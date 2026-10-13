@@ -1,0 +1,32 @@
+{
+  "name": "नेपाल हेमोफिलिया सोसाइटी - Factor Management App",
+  "short_name": "Hemophilia App",
+  "description": "नेपाल हेमोफिलिया सोसाइटीको केन्द्रीय तथा स्याटेलाइट फ्याक्टर स्टक र बिरामी अभिलेख व्यवस्थापन प्रणाली",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#e11d48",
+  "lang": "ne",
+  "dir": "ltr",
+  "categories": ["medical", "health", "management"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
