@@ -66,3 +66,58 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, message: 'कार्यालय स्टक प्राप्त गर्न सकिएन।' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const user = await getUserFromRequest(req);
+    if (!user) {
+      return NextResponse.json({ success: false, message: 'अनधिकृत पहुँच' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const batchId = searchParams.get('id');
+    if (!batchId) {
+      return NextResponse.json({ success: false, message: 'स्टक ब्याचको ID आवश्यक छ।' }, { status: 400 });
+    }
+
+    const batch = await prisma.officeStockBatch.findUnique({
+      where: { id: batchId },
+      include: {
+        office: true,
+        company: true,
+        product: true,
+        distributionItems: true,
+      },
+    });
+
+    if (!batch) {
+      return NextResponse.json({ success: false, message: 'स्याटेलाइट स्टक ब्याच फेला परेन।' }, { status: 404 });
+    }
+
+    // Role check
+    if (user.role === 'OFFICE_USER' && batch.officeId !== user.officeId) {
+      return NextResponse.json({ success: false, message: 'अन्य कार्यालयको स्टक मेटाउने अधिकार छैन।' }, { status: 403 });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete associated distribution items
+      await tx.patientDistributionItem.deleteMany({
+        where: { officeStockBatchId: batchId },
+      });
+
+      // 2. Delete the office batch
+      await tx.officeStockBatch.delete({
+        where: { id: batchId },
+      });
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `ब्याच नं. ${batch.batchNumber} को स्याटेलाइट स्टक तथ्यांक सफलतापूर्वक हटाइयो।`,
+    });
+  } catch (error: any) {
+    console.error('Office stock batch delete error:', error);
+    return NextResponse.json({ success: false, message: 'स्टक ब्याच मेटाउँदा समस्या आयो।' }, { status: 500 });
+  }
+}
+

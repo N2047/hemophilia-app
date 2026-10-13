@@ -59,6 +59,60 @@ export default function StockTab() {
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
 
+  // Deletion States
+  const [batchToDelete, setBatchToDelete] = useState<any | null>(null);
+  const [transferToDelete, setTransferToDelete] = useState<any | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Delete Batch Handler
+  const handleDeleteBatch = async () => {
+    if (!batchToDelete) return;
+    try {
+      setDeleteLoading(true);
+      setDeleteError(null);
+      const url = isSuperAdmin
+        ? `/api/stock/central?id=${batchToDelete.id}`
+        : `/api/stock/office?id=${batchToDelete.id}`;
+      const res = await fetch(url, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) {
+        setToastMessage(json.message || 'स्टक ब्याच सफलतापूर्वक हटाइयो।');
+        setBatchToDelete(null);
+        fetchStock();
+      } else {
+        setDeleteError(json.message || 'स्टक ब्याच मेटाउन सकिएन।');
+      }
+    } catch (err: any) {
+      setDeleteError('नेटवर्क समस्याका कारण मेटाउन सकिएन।');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Delete Transfer Handler
+  const handleDeleteTransfer = async () => {
+    if (!transferToDelete) return;
+    try {
+      setDeleteLoading(true);
+      setDeleteError(null);
+      const res = await fetch(`/api/stock/transfers?id=${transferToDelete.id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) {
+        setToastMessage(json.message || 'स्टक ट्रान्सफर सफलतापूर्वक हटाइयो।');
+        setTransferToDelete(null);
+        fetchStock();
+      } else {
+        setDeleteError(json.message || 'ट्रान्सफर मेटाउन सकिएन।');
+      }
+    } catch (err: any) {
+      setDeleteError('नेटवर्क समस्याका कारण मेटाउन सकिएन।');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   // Fetch Stock Data
   const fetchStock = async () => {
     try {
@@ -323,6 +377,7 @@ export default function StockTab() {
                     <th className="p-3.5 text-right">बाँकी भाइल</th>
                     <th className="p-3.5 text-right">कुल IU</th>
                     <th className="p-3.5 text-center">स्थिति</th>
+                    <th className="p-3.5 text-center w-16">कार्य</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -375,6 +430,18 @@ export default function StockTab() {
                             प्रयोगयोग्य
                           </span>
                         )}
+                      </td>
+                      <td className="p-3.5 text-center">
+                        <button
+                          onClick={() => {
+                            setDeleteError(null);
+                            setBatchToDelete(b);
+                          }}
+                          title="अनावश्यक स्टक ब्याच मेटाउनुहोस् (Delete Batch)"
+                          className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -441,9 +508,21 @@ export default function StockTab() {
 
                   <div className="pt-1 text-[11px] text-slate-400 flex items-center justify-between">
                     <span>
-                      मिति: {new Date(t.transferDate).toLocaleDateString('ne-NP')}
+                      मिति: {new Date(t.transferDate).toLocaleDateString('ne-NP')} • पठाउने: {t.sentBy?.name || 'Super Admin'}
                     </span>
-                    <span>पठाउने: {t.sentBy?.name || 'Super Admin'}</span>
+                    {isSuperAdmin && (
+                      <button
+                        onClick={() => {
+                          setDeleteError(null);
+                          setTransferToDelete(t);
+                        }}
+                        title="यो ट्रान्सफर रेकर्ड मेटाउनुहोस् (Delete Transfer)"
+                        className="p-1 rounded text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950 transition-colors flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>हटाउनुहोस्</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -877,6 +956,176 @@ export default function StockTab() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* CONFIRM DELETE STOCK BATCH MODAL */}
+      {batchToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div 
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-rose-200 dark:border-rose-900 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/80 flex items-center justify-center shrink-0">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  स्टक ब्याच तथ्यांक मेटाउनुहोस्
+                </h3>
+                <p className="text-xs text-rose-600 dark:text-rose-400 font-semibold font-mono">
+                  ब्याच नं: {batchToDelete.batchNumber}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 text-xs space-y-1.5">
+              <div className="flex justify-between">
+                <span className="text-slate-500">कम्पनी / औषधि:</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">
+                  {batchToDelete.company?.name} ({batchToDelete.product?.name})
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">क्षमता / फ्याक्टर:</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                  {batchToDelete.product?.factorType} ({batchToDelete.capacityIu} IU)
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">हालको मौज्दात:</span>
+                <span className="font-bold text-brand-600">
+                  {batchToDelete.currentVials} भाइल ({batchToDelete.currentIu?.toLocaleString()} IU)
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">म्याद मिति:</span>
+                <span className="text-slate-700 dark:text-slate-300">
+                  {new Date(batchToDelete.expiryDate).toLocaleDateString('ne-NP')}
+                </span>
+              </div>
+            </div>
+
+            {deleteError && (
+              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 font-medium">
+                {deleteError}
+              </div>
+            )}
+
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              ⚠️ के तपाईं निश्चित हुनुहुन्छ? यो ब्याचको स्टक रेकर्ड स्थायी रूपमा हटाइनेछ।
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setBatchToDelete(null);
+                  setDeleteError(null);
+                }}
+                disabled={deleteLoading}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                रद्द गर्नुहोस्
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteBatch}
+                disabled={deleteLoading}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-500/20 active:scale-95 disabled:opacity-50 transition-all"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{deleteLoading ? 'मेटाउँदैछ...' : 'हो, डिलिट गर्नुहोस्'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRM DELETE TRANSFER MODAL */}
+      {transferToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div 
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-rose-200 dark:border-rose-900 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/80 flex items-center justify-center shrink-0">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  स्टक ट्रान्सफर रेकर्ड मेटाउनुहोस्
+                </h3>
+                <p className="text-xs text-rose-600 dark:text-rose-400 font-semibold font-mono">
+                  ट्रान्सफर नं: {transferToDelete.transferNumber}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 text-xs space-y-1.5">
+              <div className="flex justify-between">
+                <span className="text-slate-500">गन्तव्य कार्यालय:</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">
+                  {transferToDelete.destinationOffice?.nameNepali || 'स्याटेलाइट'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">कुल औषधि परिमाण:</span>
+                <span className="font-bold text-brand-600">
+                  {transferToDelete.totalVials} भाइल ({transferToDelete.totalIu?.toLocaleString()} IU)
+                </span>
+              </div>
+            </div>
+
+            {deleteError && (
+              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 font-medium">
+                {deleteError}
+              </div>
+            )}
+
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              के तपाईं निश्चित हुनुहुन्छ? यो ट्रान्सफर मेटाउँदा पठाइएका औषधि भाइलहरू केन्द्रीय स्टकमा स्वतः फिर्ता जोडिनेछन्।
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setTransferToDelete(null);
+                  setDeleteError(null);
+                }}
+                disabled={deleteLoading}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                रद्द गर्नुहोस्
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteTransfer}
+                disabled={deleteLoading}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-500/20 active:scale-95 disabled:opacity-50 transition-all"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{deleteLoading ? 'मेटाउँदैछ...' : 'हो, ट्रान्सफर डिलिट गर्नुहोस्'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ACTION SUCCESS TOAST */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl shadow-xl border bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200 flex items-center gap-3 animate-in fade-in slide-in-from-bottom duration-200">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span className="text-xs font-bold">{toastMessage}</span>
+          <button
+            onClick={() => setToastMessage(null)}
+            className="ml-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>
