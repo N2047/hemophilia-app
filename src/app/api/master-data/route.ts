@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error('Master data fetch error:', error);
     return NextResponse.json(
-      { success: false, message: 'मास्टर डाटा प्राप्त गर्न सकिएन।' },
+      { success: false, message: 'मास्टर डाटा प्राप्त गर्न सकिएन।', error: error?.message || String(error) },
       { status: 500 }
     );
   }

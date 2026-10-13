@@ -2,23 +2,25 @@ import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 
+let dbUrl = process.env.DATABASE_URL;
+
 // In Vercel Serverless environment, file system is read-only except /tmp
 if (process.env.VERCEL) {
   const tmpDbPath = '/tmp/dev.db';
   const seedDbPath = path.join(process.cwd(), 'prisma', 'dev.db');
 
-  if (!fs.existsSync(tmpDbPath) && fs.existsSync(seedDbPath)) {
-    try {
-      fs.copyFileSync(seedDbPath, tmpDbPath);
-      console.log('Successfully copied SQLite database to /tmp/dev.db');
-    } catch (err) {
-      console.error('Error copying SQLite database to /tmp:', err);
+  try {
+    if (!fs.existsSync(tmpDbPath)) {
+      if (fs.existsSync(seedDbPath)) {
+        fs.copyFileSync(seedDbPath, tmpDbPath);
+      }
     }
+  } catch (err) {
+    console.error('Error copying SQLite database to /tmp:', err);
   }
 
-  if (!process.env.DATABASE_URL || process.env.DATABASE_URL.startsWith('file:')) {
-    process.env.DATABASE_URL = `file:${tmpDbPath}`;
-  }
+  dbUrl = `file:${tmpDbPath}`;
+  process.env.DATABASE_URL = dbUrl;
 }
 
 const globalForPrisma = globalThis as unknown as {
@@ -28,6 +30,13 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
+    datasources: dbUrl
+      ? {
+          db: {
+            url: dbUrl,
+          },
+        }
+      : undefined,
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   });
 
