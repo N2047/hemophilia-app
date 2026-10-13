@@ -14,9 +14,30 @@ export async function GET(req: NextRequest) {
     const settingsMap = Object.fromEntries(settingsRecords.map((s) => [s.key, s.value]));
 
     // Defaults
-    const factorTypes = settingsMap['FACTOR_TYPES']
-      ? JSON.parse(settingsMap['FACTOR_TYPES'])
-      : ['Factor VIII', 'Factor IX', 'Factor VII', 'Factor II', 'Factor XI', 'Factor X', 'Von Willebrand Factor', 'Other'];
+    const DEFAULT_FACTOR_TYPES = [
+      'Factor VIII',
+      'Factor IX',
+      'Factor VII',
+      'FEIBA',
+      'Factor XIII',
+      'Factor II',
+      'Factor X',
+      'Factor XI',
+      'Von Willebrand Factor (VWF)',
+      'Hemlibra (Emicizumab)',
+      'Other',
+    ];
+
+    let factorTypes = DEFAULT_FACTOR_TYPES;
+    if (settingsMap['FACTOR_TYPES']) {
+      try {
+        const parsed = JSON.parse(settingsMap['FACTOR_TYPES']);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const set = new Set([...parsed, 'Factor VII', 'FEIBA']);
+          factorTypes = Array.from(set);
+        }
+      } catch (e) {}
+    }
 
     const bloodGroups = settingsMap['BLOOD_GROUPS']
       ? JSON.parse(settingsMap['BLOOD_GROUPS'])

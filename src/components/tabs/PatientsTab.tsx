@@ -53,9 +53,13 @@ export default function PatientsTab({ onDistributePatient }: PatientsTabProps) {
     'Factor VIII',
     'Factor IX',
     'Factor VII',
+    'FEIBA',
+    'Factor XIII',
     'Factor II',
     'Factor XI',
     'Factor X',
+    'Von Willebrand Factor (VWF)',
+    'Hemlibra (Emicizumab)',
     'Other',
   ]);
   const [availableBloodGroups, setAvailableBloodGroups] = useState<string[]>([

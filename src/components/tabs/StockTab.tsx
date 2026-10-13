@@ -16,6 +16,7 @@ import {
   Trash2,
   History,
   Layers,
+  Syringe,
 } from 'lucide-react';
 
 export default function StockTab() {
@@ -30,10 +31,39 @@ export default function StockTab() {
   const [companies, setCompanies] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [capacities, setCapacities] = useState<any[]>([]);
+  const [factorTypes, setFactorTypes] = useState<string[]>([
+    'Factor VIII',
+    'Factor IX',
+    'Factor VII',
+    'FEIBA',
+    'Factor XIII',
+    'Factor II',
+    'Factor X',
+    'Factor XI',
+    'Von Willebrand Factor (VWF)',
+    'Hemlibra (Emicizumab)',
+    'Other',
+  ]);
 
   // Modals
   const [showStockInModal, setShowStockInModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+
+  // Quick Add Company Modal / State
+  const [showAddCompanyModal, setShowAddCompanyModal] = useState(false);
+  const [newCompanyName, setNewCompanyName] = useState('');
+  const [companyLoading, setCompanyLoading] = useState(false);
+  const [companyError, setCompanyError] = useState<string | null>(null);
+
+  // Quick Add Product Modal / State
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [productModalForm, setProductModalForm] = useState({
+    name: '',
+    factorType: 'Factor VIII',
+    customFactorType: '',
+  });
+  const [productLoading, setProductLoading] = useState(false);
+  const [productError, setProductError] = useState<string | null>(null);
 
   // Stock In Form
   const [stockInForm, setStockInForm] = useState({
@@ -139,41 +169,149 @@ export default function StockTab() {
   };
 
   // Fetch Master Data
+  const fetchMasterData = async () => {
+    try {
+      const r = await fetch('/api/master-data');
+      const d = await r.json();
+      if (d.success) {
+        setOffices(d.data.offices || []);
+        setCompanies(d.data.companies || []);
+        setProducts(d.data.products || []);
+        setCapacities(d.data.capacities || []);
+        if (d.data.factorTypes && d.data.factorTypes.length > 0) {
+          setFactorTypes(d.data.factorTypes);
+        }
+        return d.data;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return null;
+  };
+
   useEffect(() => {
     fetchStock();
-    fetch('/api/master-data')
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) {
-          setOffices(d.data.offices || []);
-          setCompanies(d.data.companies || []);
-          setProducts(d.data.products || []);
-          setCapacities(d.data.capacities || []);
-
-          if (d.data.companies.length > 0) {
-            setStockInForm((prev) => ({
-              ...prev,
-              companyId: d.data.companies[0].id,
-            }));
-          }
-          if (d.data.offices.length > 0) {
-            setTransferForm((prev) => ({
-              ...prev,
-              destinationOfficeId: d.data.offices[0].id,
-            }));
-          }
+    fetchMasterData().then((data) => {
+      if (data) {
+        if (data.companies?.length > 0 && !stockInForm.companyId) {
+          setStockInForm((prev) => ({
+            ...prev,
+            companyId: data.companies[0].id,
+          }));
         }
-      });
+        if (data.offices?.length > 0 && !transferForm.destinationOfficeId) {
+          setTransferForm((prev) => ({
+            ...prev,
+            destinationOfficeId: data.offices[0].id,
+          }));
+        }
+      }
+    });
   }, [isSuperAdmin]);
 
   // Filter products by selected company
   const filteredProducts = products.filter((p) => p.companyId === stockInForm.companyId);
+  const selectedCompany = companies.find((c) => c.id === stockInForm.companyId);
 
   useEffect(() => {
     if (filteredProducts.length > 0) {
-      setStockInForm((prev) => ({ ...prev, productId: filteredProducts[0].id }));
+      const exists = filteredProducts.some((p) => p.id === stockInForm.productId);
+      if (!exists) {
+        setStockInForm((prev) => ({ ...prev, productId: filteredProducts[0].id }));
+      }
+    } else {
+      setStockInForm((prev) => ({ ...prev, productId: '' }));
     }
-  }, [stockInForm.companyId]);
+  }, [stockInForm.companyId, products]);
+
+  // Quick Add Company Handler
+  const handleQuickAddCompany = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCompanyName.trim()) {
+      setCompanyError('कृपया कम्पनीको नाम प्रविष्ट गर्नुहोस्।');
+      return;
+    }
+    setCompanyLoading(true);
+    setCompanyError(null);
+    try {
+      const res = await fetch('/api/admin/catalog', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'CREATE_COMPANY', name: newCompanyName.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setCompanyError(json.message || 'कम्पनी थप्न सकिएन।');
+        return;
+      }
+      const createdCompany = json.data;
+      await fetchMasterData();
+      setStockInForm((prev) => ({ ...prev, companyId: createdCompany.id }));
+      setToastMessage(`नयाँ कम्पनी "${createdCompany.name}" थपियो। अब यसको लागि नयाँ औषधि थप्नुहोस्।`);
+      setNewCompanyName('');
+      setShowAddCompanyModal(false);
+      // Auto open add product modal for this company
+      setProductModalForm({ name: '', factorType: 'Factor VIII', customFactorType: '' });
+      setShowAddProductModal(true);
+    } catch (err: any) {
+      setCompanyError('नेटवर्क समस्याका कारण कम्पनी थप्न सकिएन।');
+    } finally {
+      setCompanyLoading(false);
+    }
+  };
+
+  // Quick Add Product Handler
+  const handleQuickAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!productModalForm.name.trim()) {
+      setProductError('कृपया उत्पादन वा औषधिको नाम लेख्नुहोस्।');
+      return;
+    }
+    const finalFactorType =
+      productModalForm.factorType === 'OTHER_CUSTOM'
+        ? productModalForm.customFactorType.trim()
+        : productModalForm.factorType;
+
+    if (!finalFactorType) {
+      setProductError('कृपया फ्याक्टर प्रकार छान्नुहोस् वा लेख्नुहोस्।');
+      return;
+    }
+
+    if (!stockInForm.companyId) {
+      setProductError('कृपया पहिले कम्पनी छान्नुहोस्।');
+      return;
+    }
+
+    setProductLoading(true);
+    setProductError(null);
+    try {
+      const res = await fetch('/api/admin/catalog', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'CREATE_PRODUCT',
+          companyId: stockInForm.companyId,
+          name: productModalForm.name.trim(),
+          factorType: finalFactorType,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setProductError(json.message || 'उत्पादन थप्न सकिएन।');
+        return;
+      }
+      const createdProduct = json.data;
+      await fetchMasterData();
+      setStockInForm((prev) => ({ ...prev, productId: createdProduct.id }));
+      setToastMessage(`नयाँ औषधि "${createdProduct.name} (${finalFactorType})" सफलतापुर्वक थपियो।`);
+      setProductModalForm({ name: '', factorType: 'Factor VIII', customFactorType: '' });
+      setShowAddProductModal(false);
+    } catch (err: any) {
+      setProductError('नेटवर्क समस्याका कारण औषधि थप्न सकिएन।');
+    } finally {
+      setProductLoading(false);
+    }
+  };
 
   // Submit Stock In
   const handleStockInSubmit = async (e: React.FormEvent) => {
@@ -581,9 +719,24 @@ export default function StockTab() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    कम्पनी (Company) *
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-bold text-slate-700 dark:text-slate-300">
+                      कम्पनी (Company) *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCompanyError(null);
+                        setNewCompanyName('');
+                        setShowAddCompanyModal(true);
+                      }}
+                      className="text-[11px] font-bold text-teal-600 dark:text-teal-400 hover:text-teal-700 hover:underline flex items-center gap-0.5"
+                      title="नयाँ कम्पनी सूचीकृत गर्नुहोस्"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>+ नयाँ कम्पनी</span>
+                    </button>
+                  </div>
                   <select
                     value={stockInForm.companyId}
                     onChange={(e) => setStockInForm({ ...stockInForm, companyId: e.target.value })}
@@ -598,20 +751,54 @@ export default function StockTab() {
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                    उत्पादन (Product) *
-                  </label>
-                  <select
-                    value={stockInForm.productId}
-                    onChange={(e) => setStockInForm({ ...stockInForm, productId: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
-                  >
-                    {filteredProducts.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} ({p.factorType})
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="font-bold text-slate-700 dark:text-slate-300">
+                      उत्पादन (Product) *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductError(null);
+                        setProductModalForm({ name: '', factorType: 'Factor VIII', customFactorType: '' });
+                        setShowAddProductModal(true);
+                      }}
+                      className="text-[11px] font-bold text-teal-600 dark:text-teal-400 hover:text-teal-700 hover:underline flex items-center gap-0.5"
+                      title="नयाँ औषधि / ब्रान्ड थप्नुहोस्"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>+ नयाँ औषधि</span>
+                    </button>
+                  </div>
+                  {filteredProducts.length > 0 ? (
+                    <select
+                      value={stockInForm.productId}
+                      onChange={(e) => setStockInForm({ ...stockInForm, productId: e.target.value })}
+                      className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                    >
+                      {filteredProducts.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} ({p.factorType})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="p-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center justify-between gap-1">
+                      <span className="text-[10px] text-amber-800 dark:text-amber-300 font-medium truncate">
+                        औषधि छैन
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductError(null);
+                          setProductModalForm({ name: '', factorType: 'Factor VIII', customFactorType: '' });
+                          setShowAddProductModal(true);
+                        }}
+                        className="text-[10px] font-bold bg-amber-600 text-white px-2 py-0.5 rounded-lg hover:bg-amber-700 shrink-0"
+                      >
+                        + थप्नुहोस्
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -718,6 +905,231 @@ export default function StockTab() {
                   className="px-5 py-2.5 rounded-xl font-bold text-white bg-teal-600 hover:bg-teal-700 shadow-md shadow-teal-500/20 disabled:opacity-50"
                 >
                   {formLoading ? 'सुरक्षित हुँदैछ...' : 'स्टक सुरक्षित गर्नुहोस्'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Quick Add Company */}
+      {showAddCompanyModal && (
+        <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-sm shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 text-xs animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-sm text-slate-900 dark:text-white">नयाँ कम्पनी थप्नुहोस्</h3>
+                  <p className="text-[11px] text-slate-400">फ्याक्टर उत्पादक वा दाता कम्पनी</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddCompanyModal(false);
+                  setCompanyError(null);
+                }}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {companyError && (
+              <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{companyError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleQuickAddCompany} className="space-y-3">
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  कम्पनीको नाम (Company Name) *
+                </label>
+                <input
+                  type="text"
+                  placeholder="उदा: Bayer, Sanofi, BPL, Kedrion..."
+                  value={newCompanyName}
+                  onChange={(e) => setNewCompanyName(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddCompanyModal(false);
+                    setCompanyError(null);
+                  }}
+                  className="px-3.5 py-2 text-slate-500 font-bold hover:bg-slate-100 rounded-xl"
+                >
+                  रद्द
+                </button>
+                <button
+                  type="submit"
+                  disabled={companyLoading}
+                  className="px-4 py-2 font-bold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {companyLoading ? (
+                    <span>थपिँदैछ...</span>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      <span>कम्पनी थप्नुहोस्</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Quick Add Product / Factor */}
+      {showAddProductModal && (
+        <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 text-xs animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400">
+                  <Syringe className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-sm text-slate-900 dark:text-white">नयाँ औषधि / उत्पादन थप्नुहोस्</h3>
+                  <p className="text-[11px] text-teal-700 dark:text-teal-300 font-bold">
+                    कम्पनी: {selectedCompany?.name || 'छानिएको कम्पनी'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddProductModal(false);
+                  setProductError(null);
+                }}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {productError && (
+              <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{productError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleQuickAddProduct} className="space-y-3.5">
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  औषधि / ब्रान्डको नाम (Product Name) *
+                </label>
+                <input
+                  type="text"
+                  placeholder="उदा: Feiba, NovoSeven RT, Novo 7, CIBA Factor VII, Advate, Helixate..."
+                  value={productModalForm.name}
+                  onChange={(e) => setProductModalForm({ ...productModalForm, name: e.target.value })}
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500 font-semibold"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  फ्याक्टर प्रकार (Factor Type) *
+                </label>
+                <select
+                  value={productModalForm.factorType}
+                  onChange={(e) => setProductModalForm({ ...productModalForm, factorType: e.target.value })}
+                  className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold"
+                >
+                  <option value="Factor VIII">Factor VIII (फ्याक्टर VIII - Hemophilia A)</option>
+                  <option value="Factor IX">Factor IX (फ्याक्टर IX - Hemophilia B)</option>
+                  <option value="Factor VII">Factor VII (फ्याक्टर VII - Factor VII Deficiency / NovoSeven)</option>
+                  <option value="FEIBA">FEIBA (फेइबा - Factor VIII Inhibitor Bypassing Activity)</option>
+                  <option value="Factor XIII">Factor XIII (फ्याक्टर XIII)</option>
+                  <option value="Factor II">Factor II (फ्याक्टर II)</option>
+                  <option value="Factor X">Factor X (फ्याक्टर X)</option>
+                  <option value="Factor XI">Factor XI (फ्याक्टर XI)</option>
+                  <option value="Von Willebrand Factor (VWF)">Von Willebrand Factor (VWF)</option>
+                  <option value="Hemlibra (Emicizumab)">Hemlibra (Emicizumab)</option>
+                  {factorTypes
+                    .filter(
+                      (ft) =>
+                        ![
+                          'Factor VIII',
+                          'Factor IX',
+                          'Factor VII',
+                          'FEIBA',
+                          'Factor XIII',
+                          'Factor II',
+                          'Factor X',
+                          'Factor XI',
+                          'Von Willebrand Factor (VWF)',
+                          'Hemlibra (Emicizumab)',
+                          'Other',
+                        ].includes(ft)
+                    )
+                    .map((ft) => (
+                      <option key={ft} value={ft}>
+                        {ft}
+                      </option>
+                    ))}
+                  <option value="OTHER_CUSTOM">+ अन्य नयाँ फ्याक्टर प्रकार टाइप गर्नुहोस्...</option>
+                </select>
+
+                {productModalForm.factorType === 'OTHER_CUSTOM' && (
+                  <div className="mt-2 p-2.5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-dashed border-teal-400">
+                    <label className="font-bold text-[11px] text-teal-700 dark:text-teal-300 block mb-1">
+                      नयाँ फ्याक्टर प्रकारको नाम लेख्नुहोस् *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="उदा: Cryoprecipitate, Factor V, etc."
+                      value={productModalForm.customFactorType}
+                      onChange={(e) =>
+                        setProductModalForm({ ...productModalForm, customFactorType: e.target.value })
+                      }
+                      className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs"
+                      required
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddProductModal(false);
+                    setProductError(null);
+                  }}
+                  className="px-3.5 py-2 text-slate-500 font-bold hover:bg-slate-100 rounded-xl"
+                >
+                  रद्द
+                </button>
+                <button
+                  type="submit"
+                  disabled={productLoading}
+                  className="px-4 py-2 font-bold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {productLoading ? (
+                    <span>थपिँदैछ...</span>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      <span>औषधि सुरक्षित गर्नुहोस्</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

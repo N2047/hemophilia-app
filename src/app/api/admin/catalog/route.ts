@@ -69,15 +69,81 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: false, message: 'उत्पादन नाम, कम्पनी र फ्याक्टर प्रकार अनिवार्य छ।' }, { status: 400 });
       }
 
+      const trimmedName = name.trim();
+      const trimmedFactorType = factorType.trim();
+
+      const existingProduct = await prisma.product.findUnique({
+        where: {
+          companyId_name_factorType: {
+            companyId,
+            name: trimmedName,
+            factorType: trimmedFactorType,
+          },
+        },
+        include: { company: true },
+      });
+
+      if (existingProduct) {
+        if (!existingProduct.isActive) {
+          const reactivated = await prisma.product.update({
+            where: { id: existingProduct.id },
+            data: { isActive: true },
+            include: { company: true },
+          });
+          return NextResponse.json({
+            success: true,
+            message: 'यो उत्पादन पुनः सक्रिय गरियो।',
+            data: reactivated,
+          });
+        }
+        return NextResponse.json({
+          success: true,
+          message: 'यो उत्पादन पहिले नै उपलब्ध छ।',
+          data: existingProduct,
+        });
+      }
+
       const created = await prisma.product.create({
         data: {
-          name: name.trim(),
+          name: trimmedName,
           companyId,
-          factorType: factorType.trim(),
+          factorType: trimmedFactorType,
           isActive: true,
         },
         include: { company: true },
       });
+
+      // Automatically sync factor type into system settings
+      try {
+        const factorSetting = await prisma.systemSetting.findUnique({ where: { key: 'FACTOR_TYPES' } });
+        let list = [
+          'Factor VIII',
+          'Factor IX',
+          'Factor VII',
+          'FEIBA',
+          'Factor XIII',
+          'Factor II',
+          'Factor X',
+          'Factor XI',
+          'Von Willebrand Factor (VWF)',
+          'Hemlibra (Emicizumab)',
+          'Other',
+        ];
+        if (factorSetting?.value) {
+          try {
+            const parsed = JSON.parse(factorSetting.value);
+            if (Array.isArray(parsed)) list = parsed;
+          } catch (e) {}
+        }
+        if (!list.includes(trimmedFactorType)) {
+          list.push(trimmedFactorType);
+          await prisma.systemSetting.upsert({
+            where: { key: 'FACTOR_TYPES' },
+            create: { key: 'FACTOR_TYPES', value: JSON.stringify(list) },
+            update: { value: JSON.stringify(list) },
+          });
+        }
+      } catch (e) {}
 
       await createAuditLog({
         user,

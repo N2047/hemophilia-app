@@ -95,7 +95,7 @@ async function main() {
       products: [
         { name: 'Advate', factorType: 'Factor VIII' },
         { name: 'Rixubis', factorType: 'Factor IX' },
-        { name: 'Feiba', factorType: 'Other' },
+        { name: 'Feiba', factorType: 'FEIBA' },
       ],
     },
     {
@@ -136,6 +136,8 @@ async function main() {
       products: [
         { name: 'CIBA Factor VIII', factorType: 'Factor VIII' },
         { name: 'CIBA Factor IX', factorType: 'Factor IX' },
+        { name: 'CIBA Factor VII', factorType: 'Factor VII' },
+        { name: 'CIBA Feiba', factorType: 'FEIBA' },
       ],
     },
     {

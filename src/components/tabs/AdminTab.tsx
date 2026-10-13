@@ -77,7 +77,7 @@ export default function AdminTab() {
   const [showCompanyModal, setShowCompanyModal] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [showProductModal, setShowProductModal] = useState(false);
-  const [productForm, setProductForm] = useState({ companyId: '', name: '', factorType: 'Factor VIII' });
+  const [productForm, setProductForm] = useState({ companyId: '', name: '', factorType: 'Factor VIII', customFactorType: '' });
   const [showCapacityModal, setShowCapacityModal] = useState(false);
   const [capacityForm, setCapacityForm] = useState({ capacityIu: 1000, label: '1000 IU' });
 
@@ -349,17 +349,33 @@ export default function AdminTab() {
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const finalFactor =
+        productForm.factorType === 'OTHER_CUSTOM'
+          ? productForm.customFactorType.trim()
+          : productForm.factorType;
+
+      if (!finalFactor) {
+        setActionError('कृपया फ्याक्टर प्रकार छान्नुहोस् वा लेख्नुहोस्।');
+        return;
+      }
+
       const res = await fetch('/api/admin/catalog', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'CREATE_PRODUCT', ...productForm }),
+        body: JSON.stringify({
+          action: 'CREATE_PRODUCT',
+          companyId: productForm.companyId,
+          name: productForm.name,
+          factorType: finalFactor,
+        }),
       });
       const json = await res.json();
       if (res.ok) {
         setActionSuccess(json.message);
         setShowProductModal(false);
-        setProductForm({ companyId: '', name: '', factorType: 'Factor VIII' });
+        setProductForm({ companyId: '', name: '', factorType: 'Factor VIII', customFactorType: '' });
         fetchCatalog();
+        fetchSettings();
       } else {
         setActionError(json.message);
       }
@@ -855,7 +871,12 @@ export default function AdminTab() {
               <button
                 onClick={() => {
                   if (catalog.companies.length > 0) {
-                    setProductForm({ companyId: catalog.companies[0].id, name: '', factorType: 'Factor VIII' });
+                    setProductForm({
+                      companyId: catalog.companies[0].id,
+                      name: '',
+                      factorType: 'Factor VIII',
+                      customFactorType: '',
+                    });
                   }
                   setShowProductModal(true);
                 }}
@@ -1551,7 +1572,18 @@ export default function AdminTab() {
                       {ft}
                     </option>
                   ))}
+                  <option value="OTHER_CUSTOM">+ अन्य नयाँ फ्याक्टर प्रकार टाइप गर्नुहोस्...</option>
                 </select>
+                {productForm.factorType === 'OTHER_CUSTOM' && (
+                  <input
+                    type="text"
+                    placeholder="नयाँ फ्याक्टर प्रकार (उदा: FEIBA, Factor VII, etc.)"
+                    value={productForm.customFactorType}
+                    onChange={(e) => setProductForm({ ...productForm, customFactorType: e.target.value })}
+                    className="w-full p-2.5 mt-2 bg-slate-50 dark:bg-slate-800 border rounded-xl"
+                    required
+                  />
+                )}
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setShowProductModal(false)} className="px-4 py-2 text-slate-500 font-bold">
